@@ -219,27 +219,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 // ================= ROUTES ==================
 // Thêm routes API ở root level cho Postman (chỉ xử lý POST và API requests)
 
-// Helper function: Kiểm tra request từ Postman/API
-function isApiRequest(req) {
-  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
-  const acceptHeader = (req.headers.accept || '').toLowerCase();
-  const contentType = (req.headers['content-type'] || '').toLowerCase();
-  const xRequestedWith = (req.headers['x-requested-with'] || '').toLowerCase();
 
-  // Nếu có header X-Requested-With: XMLHttpRequest → AJAX request
-  if (xRequestedWith === 'xmlhttprequest') return true;
-  if (acceptHeader.includes('application/json')) return true;
-  if (userAgent.includes('postman')) return true;
-  if (contentType.includes('application/json')) return true;
-  return false;
-}
 
-// API Login route (root level) - chỉ xử lý POST và API requests
+// API Login route (root level)
 app.post('/login', async function (req, res, next) {
-  // Chỉ xử lý nếu là API request, nếu không thì pass qua routes khác
-  if (!isApiRequest(req)) {
-    return next(); // Pass qua routes khác
-  }
 
   const { email, password } = req.body;
 
@@ -294,12 +277,8 @@ app.post('/login', async function (req, res, next) {
   }
 });
 
-// API Register route (root level) - chỉ xử lý POST và API requests
+// API Register route (root level)
 app.post('/register', async function (req, res, next) {
-  // Chỉ xử lý nếu là API request, nếu không thì pass qua routes khác
-  if (!isApiRequest(req)) {
-    return next(); // Pass qua routes khác
-  }
 
   const { name, fullname, email, password, confirmPassword, confirmpassword } = req.body;
   const userName = name || fullname;

@@ -18,11 +18,7 @@ router.use(async function (req, res, next) {
 // Helper: Calculate Cart Total
 // Helper: Calculate Cart Total (Removed)
 
-// API Header (Optional placeholder)
-router.all('/*', function (req, res, next) {
-    res.setHeader('Content-Type', 'application/json');
-    next();
-});
+
 
 // Mock Products Data
 const PRODUCTS = [
