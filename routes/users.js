@@ -3,11 +3,7 @@ var router = express.Router();
 const User = require('../models/User');
 const bcryptjs = require('bcryptjs');
 
-// Optional API layout middleware
-router.all('/*', function (req, res, next) {
-  res.setHeader('Content-Type', 'application/json');
-  next();
-});
+
 
 // Helper function: Kiểm tra request từ Postman hay Browser/AJAX
 function isApiRequest(req) {

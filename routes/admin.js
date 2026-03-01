@@ -26,11 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Set layout for ALL admin routes - replaced by API format
-router.all('/*', function (req, res, next) {
-    res.setHeader('Content-Type', 'application/json');
-    next();
-});
+
 
 // Debug/Priority Banner routes removed
 
@@ -355,16 +351,15 @@ router.get('/product', requireAdmin, async function (req, res) {
         const lowStock = products.filter(p => p.quantity > 0 && p.quantity <= 10).length;
         const outOfStock = products.filter(p => p.quantity === 0).length;
 
-        res.render('admin/product/product-list', {
+        res.status(200).json({
+            success: true,
             title: 'Product Management',
-            isProduct: true,
-            adminUser: res.locals.adminUser,
             products: products,
             stats: { totalProducts, inStock, lowStock, outOfStock }
         });
     } catch (err) {
         console.error('Get products error:', err);
-        res.redirect('/admin/?error=server_error');
+        res.status(500).json({ success: false, message: 'Lỗi tải danh sách sản phẩm', error: err.message });
     }
 });
 
@@ -535,15 +530,14 @@ router.get('/customers', requireAdmin, async function (req, res) {
             };
         }));
 
-        res.render('admin/customers/customers-list', {
+        res.status(200).json({
+            success: true,
             title: 'Customers Management',
-            isCustomers: true,
-            adminUser: res.locals.adminUser,
             customers: customers
         });
     } catch (err) {
         console.error('Error fetching customers:', err);
-        res.redirect('/admin/?error=fetch_customers_failed');
+        res.status(500).json({ success: false, message: 'Lỗi tải danh sách khách hàng', error: err.message });
     }
 });
 

@@ -9,8 +9,18 @@ function requireAdmin(req, res, next) {
         user = req.session.user;
     }
 
-    // Nếu không có user, redirect về login
+    // Check if it's an API request (from React app)
+    const acceptHeader = (req.headers.accept || '').toLowerCase();
+    const isApi = acceptHeader.includes('application/json');
+
+    // Nếu không có user, redirect hoặc trả về JSON
     if (!user || !user.id) {
+        if (isApi) {
+            return res.status(401).json({
+                success: false,
+                message: 'Vui lòng đăng nhập để tiếp tục'
+            });
+        }
         return res.redirect('/admin/login?error=' + encodeURIComponent('Vui lòng đăng nhập để tiếp tục'));
     }
 
@@ -18,13 +28,24 @@ function requireAdmin(req, res, next) {
     User.findById(user.id).then(dbUser => {
         if (!dbUser) {
             console.error('User not found:', user.id);
-            // Clear invalid session
             req.session.destroy();
+            if (isApi) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Người dùng không tồn tại'
+                });
+            }
             return res.redirect('/admin/login?error=' + encodeURIComponent('Người dùng không tồn tại'));
         }
 
         if (dbUser.role !== 'admin') {
             console.error('User is not admin:', dbUser.email, dbUser.role);
+            if (isApi) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Bạn không có quyền truy cập trang admin'
+                });
+            }
             return res.redirect('/admin/login?error=' + encodeURIComponent('Bạn không có quyền truy cập trang admin'));
         }
 
@@ -34,6 +55,12 @@ function requireAdmin(req, res, next) {
         next();
     }).catch(err => {
         console.error('Error checking admin:', err);
+        if (isApi) {
+            return res.status(500).json({
+                success: false,
+                message: 'Lỗi xác thực: ' + err.message
+            });
+        }
         return res.redirect('/admin/login?error=' + encodeURIComponent('Lỗi xác thực'));
     });
 }
