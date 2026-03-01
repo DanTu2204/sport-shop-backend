@@ -129,7 +129,7 @@ app.set('view engine', 'hbs');
 
 // ================= MIDDLEWARE ==================
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Allow Vite React local dev
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173','https://shopnhom7.netlify.app/'], // Allow Vite React local dev
   credentials: true
 }));
 app.use(logger('dev'));
