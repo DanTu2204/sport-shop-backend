@@ -61,14 +61,24 @@ router.get('/', async function (req, res) {
         // Map _id to id for compatibility if needed, though handlebars can access _id
         const mapProducts = (products) => products.map(p => ({ ...p, id: p._id.toString() }));
 
-        res.status(200).json({
-            success: true,
-            title: 'Sport Shop - Trang chủ',
-            featuredProducts: mapProducts(featuredProducts),
-            recentProducts: mapProducts(recentProducts),
-            banners: banners,
-            categories: categories
-        });
+        // Check if it's an API request (from React app)
+        const acceptHeader = (req.headers.accept || '').toLowerCase();
+        const xRequestedWith = (req.headers['x-requested-with'] || '').toLowerCase();
+        const isApi = acceptHeader.includes('application/json') || xRequestedWith === 'xmlhttprequest';
+
+        if (isApi) {
+            return res.status(200).json({
+                success: true,
+                title: 'Sport Shop - Trang chủ',
+                featuredProducts: mapProducts(featuredProducts),
+                recentProducts: mapProducts(recentProducts),
+                banners: banners,
+                categories: categories
+            });
+        }
+
+        // Browser request: Since backend is now primarily for Admin, redirect to Admin Dashboard
+        res.redirect('/admin');
     } catch (err) {
         console.error('Home page error:', err);
         res.status(500).json({ success: false, message: 'Lỗi tải trang chủ', error: err.message });

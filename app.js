@@ -20,6 +20,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').t
   // Tạo tài khoản admin mặc định nếu chưa có
   const adminAccounts = [
     { name: 'Admin 1', email: 'admin1@admin.com', password: 'admin123', role: 'admin' },
+    { name: 'Admin 1 Gmail', email: 'admin1@gmail.com', password: 'admin123', role: 'admin' },
     { name: 'Admin 2', email: 'admin2@admin.com', password: 'admin123', role: 'admin' },
     { name: 'Super Admin', email: 'superadmin@admin.com', password: 'admin123', role: 'admin' },
     { name: 'Super hanh', email: 'anhtu@admin.com', password: 'admin123', role: 'admin' }
@@ -147,7 +148,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set true nếu dùng HTTPS
+    secure: true, // Required for SameSite=None
+    sameSite: 'none', // Needed for cross-domain sessions (Netlify -> Render)
     maxAge: 24 * 60 * 60 * 1000 // 24 giờ
   }
 }));
