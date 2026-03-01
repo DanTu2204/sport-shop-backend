@@ -14,7 +14,7 @@ const SystemConfig = require('./models/SystemConfig');
 // (Middleware moved to correct location below)
 
 // Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/Sport').then(async () => {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').then(async () => {
   console.log('MongoDB Connected!');
 
   // Tạo tài khoản admin mặc định nếu chưa có
