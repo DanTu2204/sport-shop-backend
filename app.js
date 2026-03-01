@@ -40,14 +40,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').t
         await newAdmin.save();
         console.log(`✓ Created admin account: ${adminData.email} (Password: ${adminData.password})`);
       } else {
-        // Cập nhật role nếu chưa có
-        if (existingAdmin.role !== 'admin') {
-          existingAdmin.role = 'admin';
-          await existingAdmin.save();
-          console.log(`✓ Updated user ${adminData.email} to admin role`);
-        } else {
-          console.log(`✓ Admin account already exists: ${adminData.email}`);
-        }
+        // Cập nhật role và password để đảm bảo đăng nhập được bằng admin123
+        const hashedPassword = await bcryptjs.hash(adminData.password, 10);
+        existingAdmin.role = 'admin';
+        existingAdmin.password = hashedPassword;
+        await existingAdmin.save();
+        console.log(`✓ Synchronized admin account: ${adminData.email}`);
       }
     } catch (err) {
       console.error(`Error creating admin ${adminData.email}:`, err);
@@ -68,7 +66,7 @@ var adminRouter = require('./routes/admin');
 // ================= TEMPLATE ENGINE ==================
 app.engine('hbs', engine({
   extname: '.hbs',
-  defaultLayout: 'home',
+  defaultLayout: false,
   layoutsDir: path.join(__dirname, 'views', 'layouts'),
   partialsDir: path.join(__dirname, 'views', 'partials'),
   helpers: {
@@ -148,8 +146,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true, // Required for SameSite=None
-    sameSite: 'none', // Needed for cross-domain sessions (Netlify -> Render)
+    secure: false, // Set false to allow HTTP testing and resolve session issues
+    sameSite: 'lax', // Lax is safer for general use while still allowing redirects
     maxAge: 24 * 60 * 60 * 1000 // 24 giờ
   }
 }));
