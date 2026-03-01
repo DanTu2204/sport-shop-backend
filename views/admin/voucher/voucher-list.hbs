@@ -1,0 +1,79 @@
+<div class="premium-card">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="font-weight-bold mb-0">Quản lý Mã giảm giá</h4>
+            <a href="/admin/voucher/add" class="btn btn-premium btn-premium-primary">
+                <i class="fas fa-plus mr-2"></i> Thêm mã mới
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table premium-table">
+                <thead>
+                    <tr>
+                        <th>Mã CODE</th>
+                        <th>Loại</th>
+                        <th>Giá trị</th>
+                        <th>Thời hạn</th>
+                        <th>Đã dùng</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each vouchers}}
+                    <tr>
+                        <td class="font-weight-bold text-primary">{{this.code}}</td>
+                        <td>
+                            {{#if_eq this.type 'percent'}}
+                            <span class="badge badge-soft-info">Phần trăm</span>
+                            {{else}}
+                            <span class="badge badge-soft-primary">Số tiền</span>
+                            {{/if_eq}}
+                        </td>
+                        <td class="font-weight-bold">
+                            {{#if_eq this.type 'percent'}}
+                            {{this.value}}%
+                            {{else}}
+                            {{formatCurrency this.value}}
+                            {{/if_eq}}
+                        </td>
+                        <td class="small">
+                            {{formatDate this.startDate}} - {{formatDate this.endDate}}
+                        </td>
+                        <td>{{this.usedCount}} / {{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</td>
+                        <td>
+                            {{#if_eq this.status 'active'}}
+                            <span class="badge badge-success px-3 py-1 rounded-pill">Hoạt động</span>
+                            {{else}}
+                            <span class="badge badge-secondary px-3 py-1 rounded-pill">Tạm dừng</span>
+                            {{/if_eq}}
+                        </td>
+                        <td>
+                            <a href="/admin/voucher/edit/{{this._id}}"
+                                class="btn btn-sm btn-outline-primary mr-1">Sửa</a>
+                            <form action="/admin/voucher/delete" method="POST" class="d-inline"
+                                onsubmit="return confirm('Xóa mã này?')">
+                                <input type="hidden" name="id" value="{{this._id}}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge-soft-info {
+        background-color: rgba(0, 184, 212, 0.1);
+        color: #00b8d4;
+    }
+
+    .badge-soft-primary {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+</style>

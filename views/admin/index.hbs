@@ -71,13 +71,12 @@
                         <tbody>
                             {{#each recentOrders}}
                             <tr>
-                                <td>#{{this.code}}</td>
-                                <td>{{this.customerName}}</td>
+                                <td class="font-weight-600">#{{substring this._id 18 24}}</td>
+                                <td>{{this.contact.firstName}} {{this.contact.lastName}}</td>
                                 <td>{{formatDate this.createdAt}}</td>
-                                <td>{{formatCurrency this.total}}</td>
+                                <td class="font-weight-bold text-primary">{{formatCurrency this.totalPrice}}</td>
                                 <td>
-                                    <span
-                                        class="badge badge-pill {{#if (eq this.status 'completed')}}badge-success{{else}}badge-warning{{/if}}">
+                                    <span class="badge badge-pill badge-primary">
                                         {{this.status}}
                                     </span>
                                 </td>

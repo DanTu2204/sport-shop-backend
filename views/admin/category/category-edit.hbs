@@ -1,0 +1,36 @@
+<div class="premium-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="card-body p-5">
+        <h4 class="font-weight-bold mb-4">Chỉnh Sửa Danh Mục</h4>
+
+        <form method="POST" action="/admin/category/edit/{{category._id}}">
+            <div class="form-group mb-4">
+                <label class="font-weight-600 small text-uppercase text-secondary">Tên danh mục</label>
+                <input type="text" name="name" class="form-control form-control-lg border-2" value="{{category.name}}"
+                    required style="border-radius: 12px;">
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="font-weight-600 small text-uppercase text-secondary">Mô tả</label>
+                <textarea class="form-control border-2" name="description" rows="4"
+                    style="border-radius: 12px;">{{category.description}}</textarea>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="font-weight-600 small text-uppercase text-secondary">Trạng thái</label>
+                <select class="form-control border-2" name="status"
+                    style="border-radius: 12px; height: auto; padding: 12px;">
+                    <option value="active" {{#if_eq category.status 'active' }}selected{{/if_eq}}>Đang hoạt động
+                    </option>
+                    <option value="inactive" {{#if_eq category.status 'inactive' }}selected{{/if_eq}}>Tạm ẩn</option>
+                </select>
+            </div>
+
+            <div class="d-flex pt-2">
+                <button type="submit" class="btn btn-premium btn-premium-primary px-4 py-2">
+                    <i class="fa fa-sync mr-2"></i> Cập nhật
+                </button>
+                <a href="/admin/category" class="btn btn-light rounded-pill px-4 py-2 ml-2">Hủy bỏ</a>
+            </div>
+        </form>
+    </div>
+</div>

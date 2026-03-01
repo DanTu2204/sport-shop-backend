@@ -1,0 +1,163 @@
+<div class="premium-card">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="font-weight-bold mb-0">Quản lý Đơn hàng</h4>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table premium-table">
+                <thead>
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Khách hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each orders}}
+                    <tr>
+                        <td class="font-weight-bold text-primary">#{{substring this._id 18 24}}</td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="font-weight-600">{{this.contact.firstName}}
+                                    {{this.contact.lastName}}</span>
+                                <small class="text-secondary">{{this.contact.email}}</small>
+                            </div>
+                        </td>
+                        <td>{{formatDate this.createdAt}}</td>
+                        <td class="font-weight-bold">{{formatCurrency this.totalPrice}}</td>
+                        <td>
+                            {{#if_eq this.status 'pending'}}
+                            <span class="badge badge-warning px-3 py-2 rounded-pill">Chờ xử lý</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'confirmed'}}
+                            <span class="badge badge-info px-3 py-2 rounded-pill text-white">Đã xác nhận</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'shipping'}}
+                            <span class="badge badge-primary px-3 py-2 rounded-pill">Đang giao</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'completed'}}
+                            <span class="badge badge-success px-3 py-2 rounded-pill">Hoàn thành</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'cancelled'}}
+                            <span class="badge badge-danger px-3 py-2 rounded-pill">Đã hủy</span>
+                            {{/if_eq}}
+                        </td>
+                        <td>
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button"
+                                    data-toggle="dropdown">
+                                    Cập nhật
+                                </button>
+                                <div class="dropdown-menu">
+                                    <form action="/admin/orders/update-status" method="POST">
+                                        <input type="hidden" name="orderId" value="{{this._id}}">
+                                        <button type="submit" name="status" value="pending" class="dropdown-item">Chờ xử
+                                            lý</button>
+                                        <button type="submit" name="status" value="confirmed" class="dropdown-item">Xác
+                                            nhận</button>
+                                        <button type="submit" name="status" value="shipping" class="dropdown-item">Giao
+                                            hàng</button>
+                                        <button type="submit" name="status" value="completed" class="dropdown-item">Hoàn
+                                            thành</button>
+                                        <button type="submit" name="status" value="cancelled"
+                                            class="dropdown-item text-danger">Hủy đơn</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary ml-1" data-toggle="modal"
+                                data-target="#orderDetail{{this._id}}">
+                                Chi tiết
+                            </button>
+
+                            <!-- Modal Chi tiết -->
+                            <div class="modal fade" id="orderDetail{{this._id}}" tabindex="-1" role="dialog"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                                        <div class="modal-header border-0 pb-0">
+                                            <h5 class="modal-title font-weight-bold">Chi tiết đơn hàng #{{this._id}}
+                                            </h5>
+                                            <button type="button" class="close"
+                                                data-dismiss="modal"><span>&times;</span></button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <h6
+                                                        class="text-uppercase text-secondary small font-weight-bold mb-3">
+                                                        Thông tin nhận hàng</h6>
+                                                    <p class="mb-1 font-weight-bold">{{this.contact.firstName}}
+                                                        {{this.contact.lastName}}</p>
+                                                    <p class="mb-1">{{this.contact.phone}}</p>
+                                                    <p class="mb-1 text-secondary small">{{this.contact.address}}</p>
+                                                    <p class="mb-0 text-secondary small">{{this.contact.district}},
+                                                        {{this.contact.city}}</p>
+                                                </div>
+                                                <div class="col-md-6 text-md-right">
+                                                    <h6
+                                                        class="text-uppercase text-secondary small font-weight-bold mb-3">
+                                                        Thông tin thanh toán</h6>
+                                                    <p class="mb-1">Phương thức: <span
+                                                            class="font-weight-bold">{{this.paymentMethod}}</span></p>
+                                                    <p class="mb-0">Ngày đặt: {{formatDate this.createdAt}}</p>
+                                                </div>
+                                            </div>
+
+                                            <h6 class="text-uppercase text-secondary small font-weight-bold mb-3">Sản
+                                                phẩm</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm">
+                                                    <thead class="bg-light">
+                                                        <tr>
+                                                            <th>Sản phẩm</th>
+                                                            <th class="text-right">Giá</th>
+                                                            <th class="text-center">SL</th>
+                                                            <th class="text-right">Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {{#each this.items}}
+                                                        <tr>
+                                                            <td>{{this.name}}</td>
+                                                            <td class="text-right">{{formatCurrency this.price}}</td>
+                                                            <td class="text-center">{{this.quantity}}</td>
+                                                            <td class="text-right font-weight-bold">{{formatCurrency
+                                                                (multiply this.price this.quantity)}}</td>
+                                                        </tr>
+                                                        {{/each}}
+                                                        <tr class="bg-light">
+                                                            <td colspan="3" class="text-right font-weight-bold">Phí vận
+                                                                chuyển:</td>
+                                                            <td class="text-right font-weight-bold">{{formatCurrency
+                                                                this.shippingFee}}</td>
+                                                        </tr>
+                                                        <tr class="border-top">
+                                                            <td colspan="3"
+                                                                class="text-right h5 font-weight-bold text-primary">Tổng
+                                                                cộng:</td>
+                                                            <td class="text-right h5 font-weight-bold text-primary">
+                                                                {{formatCurrency this.totalPrice}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="button" class="btn btn-light rounded-pill px-4"
+                                                data-dismiss="modal">Đóng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

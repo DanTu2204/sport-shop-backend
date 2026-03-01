@@ -1,0 +1,56 @@
+<div class="premium-card" style="max-width: 900px; margin: 0 auto;">
+    <div class="card-body p-5">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-primary-light p-3 rounded-circle mr-3">
+                <i class="fas fa-cog text-primary h4 mb-0"></i>
+            </div>
+            <h4 class="font-weight-bold mb-0">Cài đặt Hệ thống</h4>
+        </div>
+
+        <form action="/admin/settings" method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="font-weight-600 small text-uppercase text-secondary">Tên cửa hàng</label>
+                    <input type="text" class="form-control form-control-lg border-2" name="companyName"
+                        value="{{config.companyName}}" style="border-radius: 12px;">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="font-weight-600 small text-uppercase text-secondary">Email liên hệ</label>
+                    <input type="email" class="form-control form-control-lg border-2" name="email"
+                        value="{{config.email}}" style="border-radius: 12px;">
+                </div>
+                <div class="col-12 mb-4">
+                    <label class="font-weight-600 small text-uppercase text-secondary">Địa chỉ</label>
+                    <input type="text" class="form-control form-control-lg border-2" name="address"
+                        value="{{config.address}}" style="border-radius: 12px;">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="font-weight-600 small text-uppercase text-secondary">Số điện thoại</label>
+                    <input type="text" class="form-control form-control-lg border-2" name="phone"
+                        value="{{config.phone}}" style="border-radius: 12px;">
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="font-weight-600 small text-uppercase text-secondary">Giờ làm việc</label>
+                    <input type="text" class="form-control form-control-lg border-2" name="workingHours"
+                        value="{{config.workingHours}}" style="border-radius: 12px;">
+                </div>
+            </div>
+
+            <div class="p-4 bg-light rounded-xl mb-4" style="border-radius: 16px;">
+                <h6 class="font-weight-bold mb-3"><i class="fas fa-info-circle mr-2 text-primary"></i> Ghi chú</h6>
+                <p class="small text-secondary mb-0">Thông tin này sẽ được hiển thị công khai trên website người dùng.
+                    Hãy đảm bảo các thông tin liên hệ là chính xác để khách hàng có thể tìm thấy bạn.</p>
+            </div>
+
+            <button type="submit" class="btn btn-premium btn-premium-primary px-5 py-3">
+                <i class="fas fa-save mr-2"></i> Lưu tất cả thay đổi
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .bg-primary-light {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+</style>

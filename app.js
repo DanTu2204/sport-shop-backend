@@ -7,8 +7,10 @@ const { engine } = require('express-handlebars');
 const mongoose = require('mongoose');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors');
-const Category = require('./models/Category'); // Import Category model
-const User = require('./models/User'); // Import User model
+const Category = require('./models/Category');
+const Product = require('./models/Product');
+const Banner = require('./models/Banner');
+const User = require('./models/User');
 const SystemConfig = require('./models/SystemConfig');
 
 // (Middleware moved to correct location below)
@@ -50,6 +52,58 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').t
     } catch (err) {
       console.error(`Error creating admin ${adminData.email}:`, err);
     }
+  }
+
+  // Tạo Category demo nếu chưa có
+  const demoCategory = await Category.findOne({ name: 'Thể Thao Nam' });
+  if (!demoCategory) {
+    await Category.create({
+      name: 'Thể Thao Nam',
+      description: 'Các sản phẩm thể thao dành cho nam giới',
+      status: 'active'
+    });
+    console.log('✓ Created demo category: Thể Thao Nam');
+  }
+
+  // Tạo Sản phẩm demo nếu chưa có
+  const demoProduct = await Product.findOne({ code: 'SP-DEMO-01' });
+  if (!demoProduct) {
+    await Product.create({
+      code: 'SP-DEMO-01',
+      name: 'Giày Chạy Bộ Premium Pro',
+      category: 'Thể Thao Nam',
+      price: 1500, // 1.500.000đ (theo helper formatCurrency * 1000)
+      quantity: 50,
+      description: 'Giày chạy bộ cao cấp với công nghệ đệm khí, hỗ trợ tối đa cho việc tập luyện hàng ngày.',
+      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+      status: 'active',
+      stars: 5,
+      reviews: 128,
+      sizes: [
+        { size: '40', quantity: 10 },
+        { size: '41', quantity: 15 },
+        { size: '42', quantity: 15 },
+        { size: '43', quantity: 10 }
+      ]
+    });
+    console.log('✓ Created demo product: Giày Chạy Bộ Premium Pro');
+  }
+
+  // Tạo Banner demo nếu chưa có
+  const demoBanner = await Banner.findOne({ title: 'Men Fashion Showcase' });
+  if (!demoBanner) {
+    await Banner.create({
+      title: 'Men Fashion Showcase',
+      description: 'Khám phá bộ sưu tập thời trang thể thao nam mới nhất với phong cách hiện đại và năng động.',
+      image: 'https://images.unsplash.com/photo-1483721310020-03333e577076?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
+      position: 'home-carousel',
+      link: '/shop',
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+      status: 'active',
+      order: 1
+    });
+    console.log('✓ Created demo banner: Men Fashion Showcase');
   }
 }).catch(err => {
   console.error("Error connecting to mongodb:", err);

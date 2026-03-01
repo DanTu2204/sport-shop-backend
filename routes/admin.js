@@ -219,11 +219,15 @@ router.get('/', requireAdmin, async function (req, res) {
         const [
             totalCategories,
             totalProducts,
-            totalCustomers
+            totalCustomers,
+            totalOrders,
+            recentOrders
         ] = await Promise.all([
             Category.countDocuments(),
             Product.countDocuments(),
-            User.countDocuments({ role: 'user' })
+            User.countDocuments({ role: 'user' }),
+            Order.countDocuments(),
+            Order.find().sort({ createdAt: -1 }).limit(5).lean()
         ]);
 
         res.render('admin/index', {
@@ -232,12 +236,12 @@ router.get('/', requireAdmin, async function (req, res) {
             isDashboard: true,
             user: req.session.user,
             stats: {
-                orders: 0,
+                orders: totalOrders,
                 categories: totalCategories,
                 products: totalProducts,
                 customers: totalCustomers
             },
-            recentOrders: []
+            recentOrders: recentOrders
         });
     } catch (err) {
         console.error('Dashboard stats error:', err);
@@ -329,7 +333,36 @@ router.post('/category/delete', requireAdmin, async function (req, res) {
     }
 });
 
-// (Original Category Edit Routes removed per user request)
+// Category Edit View
+router.get('/category/edit/:id', requireAdmin, async function (req, res) {
+    try {
+        const category = await Category.findById(req.params.id);
+        if (!category) return res.redirect('/admin/category?error=not_found');
+
+        res.render('admin/category/category-edit', {
+            title: 'Chỉnh sửa Danh mục',
+            layout: 'admin',
+            isCategory: true,
+            user: req.session.user,
+            category: category.toJSON()
+        });
+    } catch (err) {
+        console.error('Get edit category error:', err);
+        res.redirect('/admin/category');
+    }
+});
+
+// Category Update Action
+router.post('/category/edit/:id', requireAdmin, async function (req, res) {
+    try {
+        const { name, description, status } = req.body;
+        await Category.findByIdAndUpdate(req.params.id, { name, description, status });
+        res.redirect('/admin/category?message=updated');
+    } catch (err) {
+        console.error('Update category error:', err);
+        res.redirect('/admin/category/edit/' + req.params.id + '?error=' + encodeURIComponent(err.message));
+    }
+});
 
 router.get('/category/export', requireAdmin, function (req, res) {
     res.render('admin/category/category-export', {
@@ -523,7 +556,32 @@ router.get('/product/delete/:id', requireAdmin, async function (req, res) {
 
 
 // ========== ORDERS ==========
-// Orders routes removed
+router.get('/orders', requireAdmin, async function (req, res) {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 }).lean();
+        res.render('admin/orders/orders-list', {
+            title: 'Quản lý Đơn hàng',
+            layout: 'admin',
+            isOrders: true,
+            user: req.session.user,
+            orders: orders
+        });
+    } catch (err) {
+        console.error('Get orders error:', err);
+        res.redirect('/admin/?error=fetch_orders_failed');
+    }
+});
+
+router.post('/orders/update-status', requireAdmin, async function (req, res) {
+    try {
+        const { orderId, status } = req.body;
+        await Order.findByIdAndUpdate(orderId, { status: status });
+        res.redirect('/admin/orders?message=status_updated');
+    } catch (err) {
+        console.error('Update order status error:', err);
+        res.redirect('/admin/orders?error=update_failed');
+    }
+});
 
 
 
@@ -563,19 +621,31 @@ router.get('/customers', requireAdmin, async function (req, res) {
 
 
 // ========== VOUCHER ==========
-// const Voucher = require('../models/Voucher'); // Moved to top
-
-// Voucher routes removed
-
-router.get('/voucher/add', requireAdmin, function (req, res) {
-    res.render('admin/voucher/voucher-add', {
-        title: 'Add Voucher',
-        isVoucher: true,
-        adminUser: res.locals.adminUser
-    });
+router.get('/voucher', requireAdmin, async function (req, res) {
+    try {
+        const vouchers = await Voucher.find().sort({ createdAt: -1 }).lean();
+        res.render('admin/voucher/voucher-list', {
+            title: 'Quản lý Voucher',
+            layout: 'admin',
+            isVoucher: true,
+            user: req.session.user,
+            vouchers: vouchers
+        });
+    } catch (err) {
+        console.error('Get vouchers error:', err);
+        res.redirect('/admin/?error=fetch_vouchers_failed');
+    }
 });
 
-// Remaining Voucher routes removed
+router.post('/voucher/delete', requireAdmin, async function (req, res) {
+    try {
+        await Voucher.findByIdAndDelete(req.body.id);
+        res.redirect('/admin/voucher?message=deleted');
+    } catch (err) {
+        console.error('Delete voucher error:', err);
+        res.redirect('/admin/voucher?error=delete_failed');
+    }
+});
 
 
 
@@ -643,7 +713,32 @@ router.post('/contact/delete', requireAdmin, async function (req, res) {
 });
 
 
-// Banner actions removed
+// ========== SETTINGS ==========
+router.get('/settings', requireAdmin, async function (req, res) {
+    try {
+        const config = await SystemConfig.getConfig();
+        res.render('admin/settings', {
+            title: 'Cài đặt hệ thống',
+            layout: 'admin',
+            isSettings: true,
+            user: req.session.user,
+            config: config.toJSON()
+        });
+    } catch (err) {
+        console.error('Get settings error:', err);
+        res.redirect('/admin/?error=fetch_settings_failed');
+    }
+});
+
+router.post('/settings', requireAdmin, async function (req, res) {
+    try {
+        await SystemConfig.findOneAndUpdate({}, req.body, { upsert: true });
+        res.redirect('/admin/settings?message=updated');
+    } catch (err) {
+        console.error('Update settings error:', err);
+        res.redirect('/admin/settings?error=update_failed');
+    }
+});
 
 
 
