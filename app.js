@@ -63,6 +63,7 @@ const { translations, SUPPORTED_LANGS, getTranslation } = require('./utils/i18n'
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
+var demoRouter = require('./routes/demo');
 
 // ================= TEMPLATE ENGINE ==================
 app.engine('hbs', engine({
@@ -379,6 +380,7 @@ app.post('/register', async function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);
+app.use('/demo', demoRouter);
 
 // ================= ERROR HANDLER ==================
 app.use(function (req, res, next) {
