@@ -1,0 +1,98 @@
+<div class="admin-categories">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="admin-page-title mb-0">Quản lý Danh mục</h1>
+        <button type="button" class="btn btn-premium btn-premium-primary" data-toggle="modal"
+            data-target="#addCategoryModal">
+            <i class="fas fa-plus mr-2"></i> Thêm danh mục
+        </button>
+    </div>
+
+    <div class="premium-card">
+        <div class="table-responsive">
+            <table class="table premium-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th>Số sản phẩm</th>
+                        <th>Trạng thái</th>
+                        <th class="text-right">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each categories}}
+                    <tr>
+                        <td class="font-weight-600">{{this.name}}</td>
+                        <td class="text-secondary small" style="max-width: 250px;">{{this.description}}</td>
+                        <td>
+                            <span class="badge badge-light p-2" style="border-radius: 8px;">{{this.productCount}}
+                                SP</span>
+                        </td>
+                        <td>
+                            <span
+                                class="badge badge-pill {{#if (eq this.status 'active')}}badge-success{{else}}badge-secondary{{/if}}">
+                                {{this.status}}
+                            </span>
+                        </td>
+                        <td class="text-right">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary mr-1" style="border-radius: 8px;"><i
+                                        class="fas fa-edit"></i></button>
+                                <form action="/admin/category/delete" method="POST"
+                                    onsubmit="return confirm('Xác nhận xóa danh mục này?')" style="display:inline;">
+                                    <input type="hidden" name="id" value="{{this._id}}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        style="border-radius: 8px;"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                    {{#unless categories}}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">Chưa có danh mục nào.</td>
+                    </tr>
+                    {{/unless}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm Danh mục -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="modal-title font-weight-bold">Thêm Danh Mục Mới</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="/admin/category/add" method="POST">
+                <div class="modal-body p-4">
+                    <div class="form-group mb-3">
+                        <label class="small font-weight-bold text-secondary">TÊN DANH MỤC</label>
+                        <input type="text" name="name" class="form-control"
+                            style="border-radius: 12px; padding: 0.75rem;" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="small font-weight-bold text-secondary">MÔ TẢ</label>
+                        <textarea name="description" class="form-control" rows="3"
+                            style="border-radius: 12px; padding: 0.75rem;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-secondary">TRẠNG THÁI</label>
+                        <select name="status" class="form-control" style="border-radius: 12px;">
+                            <option value="active">Hoạt động</option>
+                            <option value="inactive">Tạm ngưng</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light font-weight-600" data-dismiss="modal"
+                        style="border-radius: 12px;">Hủy</button>
+                    <button type="submit" class="btn btn-premium btn-premium-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

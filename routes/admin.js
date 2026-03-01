@@ -226,10 +226,11 @@ router.get('/', requireAdmin, async function (req, res) {
             User.countDocuments({ role: 'user' })
         ]);
 
-        res.status(200).json({
-            success: true,
-            title: 'Admin Dashboard',
-            adminUser: res.locals.adminUser,
+        res.render('admin/index', {
+            title: 'Dashboard',
+            layout: 'admin',
+            isDashboard: true,
+            user: req.session.user,
             stats: {
                 orders: 0,
                 categories: totalCategories,
@@ -240,9 +241,11 @@ router.get('/', requireAdmin, async function (req, res) {
         });
     } catch (err) {
         console.error('Dashboard stats error:', err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi tải dashboard',
+        res.render('admin/index', {
+            title: 'Dashboard',
+            layout: 'admin',
+            isDashboard: true,
+            user: req.session.user,
             stats: { orders: 0, categories: 0, products: 0, customers: 0 },
             recentOrders: []
         });
@@ -282,41 +285,47 @@ router.get('/category', requireAdmin, async function (req, res) {
             return cat;
         }));
 
-        res.status(200).json({
-            success: true,
-            title: 'Category Management',
-            adminUser: res.locals.adminUser,
+        res.render('admin/category/category-list', {
+            title: 'Quản lý Danh mục',
+            layout: 'admin',
+            isCategory: true,
+            user: req.session.user,
             categories: categoriesEnhanced,
             stats: { totalCategories, totalProducts, totalOrders, totalCustomers }
         });
     } catch (err) {
         console.error('Get categories error:', err);
-        res.status(500).json({ success: false, message: 'Lỗi tải danh mục', error: err.message });
+        res.redirect('/admin/?error=fetch_failed');
     }
 });
 
 router.get('/category/add', requireAdmin, function (req, res) {
-    res.status(200).json({ success: true, title: 'Add Category' });
+    res.render('admin/category/category-add', {
+        title: 'Thêm Danh mục',
+        layout: 'admin',
+        isCategory: true,
+        user: req.session.user
+    });
 });
 
 router.post('/category/add', requireAdmin, async function (req, res) {
     try {
         const { name, description, status } = req.body;
-        const newCat = await Category.create({ name, description, status });
-        res.status(201).json({ success: true, message: 'Thêm danh mục thành công', category: newCat });
+        await Category.create({ name, description, status });
+        res.redirect('/admin/category?message=added');
     } catch (err) {
         console.error('Add category error:', err);
-        res.status(500).json({ success: false, message: 'Lỗi thêm danh mục', error: err.message });
+        res.redirect('/admin/category?error=' + encodeURIComponent(err.message));
     }
 });
 
 router.post('/category/delete', requireAdmin, async function (req, res) {
     try {
         await Category.findByIdAndDelete(req.body.id);
-        res.status(200).json({ success: true, message: 'Xóa danh mục thành công' });
+        res.redirect('/admin/category?message=deleted');
     } catch (err) {
         console.error('Delete category error:', err);
-        res.status(500).json({ success: false, message: 'Lỗi xóa danh mục', error: err.message });
+        res.redirect('/admin/category?error=delete_failed');
     }
 });
 
@@ -351,15 +360,17 @@ router.get('/product', requireAdmin, async function (req, res) {
         const lowStock = products.filter(p => p.quantity > 0 && p.quantity <= 10).length;
         const outOfStock = products.filter(p => p.quantity === 0).length;
 
-        res.status(200).json({
-            success: true,
-            title: 'Product Management',
+        res.render('admin/product/product-list', {
+            title: 'Quản lý Sản phẩm',
+            layout: 'admin',
+            isProduct: true,
+            user: req.session.user,
             products: products,
             stats: { totalProducts, inStock, lowStock, outOfStock }
         });
     } catch (err) {
         console.error('Get products error:', err);
-        res.status(500).json({ success: false, message: 'Lỗi tải danh sách sản phẩm', error: err.message });
+        res.redirect('/admin/?error=fetch_failed');
     }
 });
 
@@ -530,14 +541,16 @@ router.get('/customers', requireAdmin, async function (req, res) {
             };
         }));
 
-        res.status(200).json({
-            success: true,
-            title: 'Customers Management',
+        res.render('admin/customers/customers-list', {
+            title: 'Quản lý khách hàng',
+            layout: 'admin',
+            isCustomers: true,
+            user: req.session.user,
             customers: customers
         });
     } catch (err) {
         console.error('Error fetching customers:', err);
-        res.status(500).json({ success: false, message: 'Lỗi tải danh sách khách hàng', error: err.message });
+        res.redirect('/admin/?error=fetch_failed');
     }
 });
 

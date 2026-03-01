@@ -1,0 +1,55 @@
+<div class="admin-customers">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="admin-page-title mb-0">Quản lý Khách hàng</h1>
+    </div>
+
+    <div class="premium-card">
+        <div class="table-responsive">
+            <table class="table premium-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Avatar</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Đơn hàng</th>
+                        <th class="text-right">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each customers}}
+                    <tr>
+                        <td>
+                            <div class="admin-avatar" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                {{substring this.name 0 1}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="font-weight-600">{{this.name}}</div>
+                            <div class="small text-secondary">ID: {{substring this._id 20 4}}</div>
+                        </td>
+                        <td>{{this.email}}</td>
+                        <td>{{this.phone}}</td>
+                        <td>
+                            <span class="badge badge-light border">{{this.orderCount}} đơn</span>
+                        </td>
+                        <td class="text-right">
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary mr-1" style="border-radius: 8px;"><i
+                                        class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" style="border-radius: 8px;"><i
+                                        class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{/each}}
+                    {{#unless customers}}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">Chưa có khách hàng nào.</td>
+                    </tr>
+                    {{/unless}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

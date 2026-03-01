@@ -1,0 +1,100 @@
+<div class="admin-dashboard">
+    <h1 class="admin-page-title">Hệ thống Quản trị</h1>
+
+    <div class="row stats-grid">
+        <div class="col-md-3">
+            <div class="premium-card p-4 d-flex align-items-center mb-4">
+                <div class="stat-icon bg-blue mr-3 p-3 rounded-circle">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="mb-0 text-secondary" style="font-size: 0.9rem;">Đơn hàng</h3>
+                    <div class="stat-value font-weight-bold h4 mb-0">{{stats.orders}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="premium-card p-4 d-flex align-items-center mb-4">
+                <div class="stat-icon bg-purple mr-3 p-3 rounded-circle"
+                    style="background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="mb-0 text-secondary" style="font-size: 0.9rem;">Danh mục</h3>
+                    <div class="stat-value font-weight-bold h4 mb-0">{{stats.categories}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="premium-card p-4 d-flex align-items-center mb-4">
+                <div class="stat-icon bg-green mr-3 p-3 rounded-circle"
+                    style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="mb-0 text-secondary" style="font-size: 0.9rem;">Sản phẩm</h3>
+                    <div class="stat-value font-weight-bold h4 mb-0">{{stats.products}}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="premium-card p-4 d-flex align-items-center mb-4">
+                <div class="stat-icon bg-orange mr-3 p-3 rounded-circle"
+                    style="background-color: rgba(249, 115, 22, 0.1); color: #f97316;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 class="mb-0 text-secondary" style="font-size: 0.9rem;">Khách hàng</h3>
+                    <div class="stat-value font-weight-bold h4 mb-0">{{stats.customers}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="premium-card">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0 font-weight-bold">Đơn hàng gần đây</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table premium-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Ngày đặt</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each recentOrders}}
+                            <tr>
+                                <td>#{{this.code}}</td>
+                                <td>{{this.customerName}}</td>
+                                <td>{{formatDate this.createdAt}}</td>
+                                <td>{{formatCurrency this.total}}</td>
+                                <td>
+                                    <span
+                                        class="badge badge-pill {{#if (eq this.status 'completed')}}badge-success{{else}}badge-warning{{/if}}">
+                                        {{this.status}}
+                                    </span>
+                                </td>
+                            </tr>
+                            {{/each}}
+                            {{#unless recentOrders}}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-secondary">
+                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                    Chưa có đơn hàng nào.
+                                </td>
+                            </tr>
+                            {{/unless}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

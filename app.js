@@ -63,7 +63,6 @@ const { translations, SUPPORTED_LANGS, getTranslation } = require('./utils/i18n'
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
-var demoRouter = require('./routes/demo');
 
 // ================= TEMPLATE ENGINE ==================
 app.engine('hbs', engine({
@@ -121,6 +120,10 @@ app.engine('hbs', engine({
     formatDate: function (date) {
       if (!date) return '';
       return new Date(date).toLocaleDateString('vi-VN');
+    },
+    substring: function (str, start, len) {
+      if (!str || typeof str !== 'string') return '';
+      return str.substring(start, start + len);
     }
   }
 }));
@@ -359,7 +362,6 @@ app.post('/register', async function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);
-app.use('/demo', demoRouter);
 
 // ================= ERROR HANDLER ==================
 app.use(function (req, res, next) {

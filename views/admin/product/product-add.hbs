@@ -1,0 +1,107 @@
+<div class="admin-product-add">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="admin-page-title mb-0">Thêm Sản phẩm Mới</h1>
+        <a href="/admin/product" class="btn btn-light" style="border-radius: 12px;">
+            <i class="fas fa-arrow-left mr-2"></i> Quay lại
+        </a>
+    </div>
+
+    <form action="/admin/product/add" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="premium-card p-4 mb-4">
+                    <h5 class="font-weight-bold mb-4">Thông tin cơ bản</h5>
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label class="small font-weight-bold text-secondary">TÊN SẢN PHẨM</label>
+                            <input type="text" name="name" class="form-control"
+                                style="border-radius: 12px; padding: 0.75rem;" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small font-weight-bold text-secondary">MÃ SẢN PHẨM (SKU)</label>
+                            <input type="text" name="code" class="form-control"
+                                style="border-radius: 12px; padding: 0.75rem;" required>
+                        </div>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label class="small font-weight-bold text-secondary">DANH MỤC</label>
+                        <select name="category" class="form-control" style="border-radius: 12px;" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            {{#each categories}}
+                            <option value="{{this.name}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="small font-weight-bold text-secondary">MÔ TẢ SẢN PHẨM</label>
+                        <textarea name="description" class="form-control" rows="6"
+                            style="border-radius: 12px; padding: 0.75rem;"></textarea>
+                    </div>
+                </div>
+
+                <div class="premium-card p-4">
+                    <h5 class="font-weight-bold mb-4">Giá & Kho hàng</h5>
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label class="small font-weight-bold text-secondary">GIÁ BÁN (VND)</label>
+                            <input type="number" name="price" class="form-control"
+                                style="border-radius: 12px; padding: 0.75rem;" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small font-weight-bold text-secondary">SỐ LƯỢNG KHO</label>
+                            <input type="number" name="quantity" class="form-control"
+                                style="border-radius: 12px; padding: 0.75rem;" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="premium-card p-4 mb-4">
+                    <h5 class="font-weight-bold mb-4">Hình ảnh Sản phẩm</h5>
+                    <div class="text-center p-4 border rounded-lg mb-3"
+                        style="border-style: dashed !important; border-width: 2px !important; border-color: var(--border) !important;">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-secondary mb-3"></i>
+                        <div class="small text-secondary mb-3">Kéo thả hoặc chọn ảnh</div>
+                        <input type="file" name="image" class="form-control-file d-none" id="productImage"
+                            onchange="previewImage(this)">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="document.getElementById('productImage').click()" style="border-radius: 8px;">Tải
+                            ảnh lên</button>
+                    </div>
+                    <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded d-none"
+                        style="max-height: 200px; width: 100%; object-fit: cover;">
+                </div>
+
+                <div class="premium-card p-4 mb-4">
+                    <h5 class="font-weight-bold mb-4">Cài đặt</h5>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-secondary">TRẠNG THÁI</label>
+                        <select name="status" class="form-control" style="border-radius: 12px;">
+                            <option value="active">Đang bán</option>
+                            <option value="inactive">Tạm ngưng</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-premium btn-premium-primary btn-block py-3">
+                    <i class="fas fa-save mr-2"></i> Lưu sản phẩm
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
