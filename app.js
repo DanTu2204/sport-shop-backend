@@ -194,14 +194,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Trust proxy for secure cookies on Render
+app.set('trust proxy', 1);
+
 // Session middleware
 app.use(session({
   secret: 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set false to allow HTTP testing and resolve session issues
-    sameSite: 'lax', // Lax is safer for general use while still allowing redirects
+    secure: true, // Required for sameSite: 'none' and cross-domain cookies
+    sameSite: 'none', // Required for cross-domain (Netlify -> Render)
     maxAge: 24 * 60 * 60 * 1000 // 24 giờ
   }
 }));
