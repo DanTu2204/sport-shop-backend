@@ -9,20 +9,29 @@ function requireAdmin(req, res, next) {
         user = req.session.user;
     }
 
-    // Check if it's an API request (from React app)
-    const acceptHeader = (req.headers.accept || '').toLowerCase();
-    const isApi = acceptHeader.includes('application/json');
-
-    // Nếu không có user, redirect hoặc trả về JSON
-    if (!user || !user.id) {
-        if (isApi) {
-            return res.status(401).json({
-                success: false,
-                message: 'Vui lòng đăng nhập để tiếp tục'
-            });
-        }
-        return res.redirect('/admin/login?error=' + encodeURIComponent('Vui lòng đăng nhập để tiếp tục'));
+    // --- AUTO LOGIN BYPASS ---
+    // Nếu không có user trong session, tự động đăng nhập bằng admin1@admin.com
+    if (!user) {
+        return User.findOne({ email: 'admin1@admin.com' }).then(admin => {
+            if (admin) {
+                req.session.user = {
+                    id: admin._id,
+                    name: admin.name,
+                    email: admin.email,
+                    role: admin.role
+                };
+                console.log('✓ Auto-logged in as admin1@admin.com');
+                return next();
+            } else {
+                // Fallback nếu không tìm thấy admin (không nên xảy ra)
+                return res.redirect('/admin/auth-secret?error=' + encodeURIComponent('Không tìm thấy tài khoản admin mặc định'));
+            }
+        }).catch(err => {
+            console.error('Auto-login error:', err);
+            return res.redirect('/admin/auth-secret?error=' + encodeURIComponent('Lỗi hệ thống khi tự động đăng nhập'));
+        });
     }
+    // --- END AUTO LOGIN BYPASS ---
 
     // Kiểm tra user có phải admin không
     User.findById(user.id).then(dbUser => {
@@ -35,7 +44,7 @@ function requireAdmin(req, res, next) {
                     message: 'Người dùng không tồn tại'
                 });
             }
-            return res.redirect('/admin/login?error=' + encodeURIComponent('Người dùng không tồn tại'));
+            return res.redirect('/admin/auth-secret?error=' + encodeURIComponent('Người dùng không tồn tại'));
         }
 
         if (dbUser.role !== 'admin') {
@@ -46,7 +55,7 @@ function requireAdmin(req, res, next) {
                     message: 'Bạn không có quyền truy cập trang admin'
                 });
             }
-            return res.redirect('/admin/login?error=' + encodeURIComponent('Bạn không có quyền truy cập trang admin'));
+            return res.redirect('/admin/auth-secret?error=' + encodeURIComponent('Bạn không có quyền truy cập trang admin'));
         }
 
         // Lưu user vào res.locals để dùng trong views
@@ -61,7 +70,7 @@ function requireAdmin(req, res, next) {
                 message: 'Lỗi xác thực: ' + err.message
             });
         }
-        return res.redirect('/admin/login?error=' + encodeURIComponent('Lỗi xác thực'));
+        return res.redirect('/admin/auth-secret?error=' + encodeURIComponent('Lỗi xác thực'));
     });
 }
 

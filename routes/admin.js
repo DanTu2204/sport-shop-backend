@@ -35,20 +35,26 @@ const upload = multer({ storage: storage });
 // (Priority Category Edit Routes removed per user request)
 // ====================================================
 
-// ========== ADMIN LOGIN ==========
-router.get('/login', function (req, res) {
+// ========== ADMIN LOGIN (HIDDEN) ==========
+// Route này giữ lại để dùng khi cần thiết (đăng nhập thủ công)
+router.get('/auth-secret', function (req, res) {
     const error = req.query.error || null;
     res.render('admin/login', {
         title: 'Admin Login',
         error: error,
-        layout: false,  // Không dùng layout admin cho trang login
-        endpoint: '/admin/login',
+        layout: false,
+        endpoint: '/admin/auth-secret',
         next: '/admin/',
         adminLogin: true
     });
 });
 
-router.post('/login', async function (req, res) {
+// Route /login cũ giờ sẽ chuyển thẳng vào admin (nhờ middleware tự đăng nhập)
+router.get('/login', function (req, res) {
+    res.redirect('/admin/');
+});
+
+router.post('/auth-secret', async function (req, res) {
     const { email, password } = req.body;
     const userAgent = (req.headers['user-agent'] || '').toLowerCase();
     const acceptHeader = (req.headers.accept || '').toLowerCase();
