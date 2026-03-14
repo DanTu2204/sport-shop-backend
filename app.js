@@ -21,11 +21,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').t
 
   // Tạo tài khoản admin mặc định nếu chưa có
   const adminAccounts = [
-    { name: 'Admin 1', email: 'admin1@admin.com', password: 'admin123', role: 'admin' },
-    { name: 'Admin 1 Gmail', email: 'admin1@gmail.com', password: 'admin123', role: 'admin' },
-    { name: 'Admin 2', email: 'admin2@admin.com', password: 'admin123', role: 'admin' },
-    { name: 'Super Admin', email: 'superadmin@admin.com', password: 'admin123', role: 'admin' },
-    { name: 'Super hanh', email: 'anhtu@admin.com', password: 'admin123', role: 'admin' }
+    { id: 1, name: 'Admin 1', email: 'admin1@admin.com', password: 'admin123', role: 'admin' },
+    { id: 2, name: 'Admin 1 Gmail', email: 'admin1@gmail.com', password: 'admin123', role: 'admin' },
+    { id: 3, name: 'Admin 2', email: 'admin2@admin.com', password: 'admin123', role: 'admin' },
+    { id: 4, name: 'Super Admin', email: 'superadmin@admin.com', password: 'admin123', role: 'admin' },
+    { id: 5, name: 'Super hanh', email: 'anhtu@admin.com', password: 'admin123', role: 'admin' }
   ];
 
   for (const adminData of adminAccounts) {
@@ -34,20 +34,22 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport').t
       if (!existingAdmin) {
         const hashedPassword = await bcryptjs.hash(adminData.password, 10);
         const newAdmin = new User({
+          id: adminData.id,
           name: adminData.name,
           email: adminData.email,
           password: hashedPassword,
           role: 'admin'
         });
         await newAdmin.save();
-        console.log(`✓ Created admin account: ${adminData.email} (Password: ${adminData.password})`);
+        console.log(`✓ Created admin account: ${adminData.email} (Password: ${adminData.password}, ID: ${adminData.id})`);
       } else {
-        // Cập nhật role và password để đảm bảo đăng nhập được bằng admin123
+        // Cập nhật role, password và id
         const hashedPassword = await bcryptjs.hash(adminData.password, 10);
         existingAdmin.role = 'admin';
         existingAdmin.password = hashedPassword;
+        existingAdmin.id = adminData.id;
         await existingAdmin.save();
-        console.log(`✓ Synchronized admin account: ${adminData.email}`);
+        console.log(`✓ Synchronized admin account: ${adminData.email} (ID: ${adminData.id})`);
       }
     } catch (err) {
       console.error(`Error creating admin ${adminData.email}:`, err);
@@ -116,6 +118,7 @@ const { translations, SUPPORTED_LANGS, getTranslation } = require('./utils/i18n'
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
+var usersCrudRouter = require('./routes/users-crud');
 
 // ================= TEMPLATE ENGINE ==================
 app.engine('hbs', engine({
@@ -419,6 +422,7 @@ app.post('/register', async function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);
+app.use('/users', usersCrudRouter);
 
 // ================= ERROR HANDLER ==================
 app.use(function (req, res, next) {
