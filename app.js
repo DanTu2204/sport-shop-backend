@@ -381,7 +381,12 @@ app.post('/register', async function (req, res, next) {
     const salt = await bcryptjs.genSalt(10);
     const hash = await bcryptjs.hash(password, salt);
 
+    // Auto-increment numeric ID
+    const highestUser = await User.findOne({ id: { $exists: true } }).sort({ id: -1 });
+    const nextId = highestUser && highestUser.id ? highestUser.id + 1 : 1;
+
     const newUser = new User({
+      id: nextId,
       name: userName,
       email: email,
       password: hash,
