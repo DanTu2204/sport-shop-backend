@@ -678,7 +678,11 @@ router.post('/cart/apply-voucher', async function (req, res) {
             _id: voucher._id
         };
 
-        res.json({ success: true, message: 'Áp dụng mã giảm giá thành công!' });
+        res.json({ 
+            success: true, 
+            message: 'Áp dụng mã giảm giá thành công!',
+            data: req.session.voucher
+        });
     } catch (err) {
         console.error('Apply voucher error:', err);
         res.json({ success: false, message: 'Lỗi server.' });
@@ -821,15 +825,16 @@ router.get('/checkout', async function (req, res) {
     if (req.session.voucher) {
         const v = req.session.voucher;
         voucherCode = v.code;
-        if (v.type === 'percent') {
-            discountAmount = (subtotal * v.value) / 100;
-        } else {
-            discountAmount = v.value;
-        }
-        // Ensure discount doesn't exceed subtotal
-        if (discountAmount > subtotal) discountAmount = subtotal;
+        
+        let potentialDiscount = (v.type === 'percent') ? (subtotal * v.value) / 100 : v.value;
 
-        grandTotal = subtotal + shipping - discountAmount;
+        if (subtotal <= potentialDiscount) {
+            discountAmount = subtotal;
+            grandTotal = 0;
+        } else {
+            discountAmount = potentialDiscount;
+            grandTotal = subtotal + shipping - discountAmount;
+        }
     }
 
     res.render('home/checkout', {
@@ -864,15 +869,19 @@ router.post('/checkout', async function (req, res) {
     if (req.session.voucher) {
         const v = req.session.voucher;
         voucherCode = v.code;
-        if (v.type === 'percent') {
-            discountAmount = (subtotal * v.value) / 100;
-        } else {
-            discountAmount = v.value;
-        }
-        if (discountAmount > subtotal) discountAmount = subtotal;
-    }
+        
+        let potentialDiscount = (v.type === 'percent') ? (subtotal * v.value) / 100 : v.value;
 
-    const grandTotal = subtotal + shipping - discountAmount;
+        if (subtotal <= potentialDiscount) {
+            discountAmount = subtotal;
+            grandTotal = 0;
+        } else {
+            discountAmount = potentialDiscount;
+            grandTotal = subtotal + shipping - discountAmount;
+        }
+    } else {
+        grandTotal = subtotal + shipping;
+    }
 
     // Map cart items to Order schema
     const orderItems = cart.map(item => ({
