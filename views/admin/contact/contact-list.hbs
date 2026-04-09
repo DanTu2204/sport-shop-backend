@@ -1,64 +1,111 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mt-4">Quản lý Liên hệ</h2>
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Danh sách tin nhắn khách hàng</h5>
-                </div>
-                <div class="card-body">
-                    {{#if contacts.length}}
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Thời gian</th>
-                                    <th>Họ tên</th>
-                                    <th>Email</th>
-                                    <th>Chủ đề</th>
-                                    <th>Nội dung</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each contacts}}
-                                <tr>
-                                    <td>{{this.createdAtFormatted}}</td>
-                                    <td>{{this.name}}</td>
-                                    <td>{{this.email}}</td>
-                                    <td>{{this.subject}}</td>
-                                    <td>
-                                        <div style="max-height: 100px; overflow-y: auto;">
-                                            {{this.message}}
-                                        </div>
-                                    </td>
-                                    <td>
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-envelope mr-2"></i>Danh sách tin nhắn khách hàng</h5>
+            </div>
+            <div class="card-body">
+                {{#if contacts.length}}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+                        <thead class="bg-light">
+                            <tr class="text-dark">
+                                <th>Thời gian</th>
+                                <th>Khách hàng</th>
+                                <th>Chủ đề & Nội dung</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each contacts}}
+                            <tr>
+                                <td style="width: 150px;">{{this.createdAtFormatted}}</td>
+                                <td>
+                                    <strong>{{this.name}}</strong><br>
+                                    <small class="text-muted">{{this.email}}</small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-primary">{{this.subject}}</div>
+                                    <div class="text-muted small mt-1" style="max-height: 60px; overflow-y: auto;">
+                                        {{this.message}}
+                                    </div>
+                                    {{#if this.reply}}
+                                    <div class="mt-2 p-2 bg-light border-start border-primary border-4 rounded">
+                                        <small class="fw-bold text-dark"><i class="fas fa-reply mr-1"></i> Admin trả lời:</small><br>
+                                        <span class="small italic text-dark">{{this.reply}}</span>
+                                    </div>
+                                    {{/if}}
+                                </td>
+                                <td class="text-center" style="width: 120px;">
+                                    {{#if_eq this.status 'replied'}}
+                                    <span class="badge bg-success">Đã trả lời</span>
+                                    {{else}}
+                                    <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                    {{/if_eq}}
+                                </td>
+                                <td style="width: 180px;">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#replyModal{{this._id}}">
+                                            <i class="fas fa-reply"></i> Trả lời
+                                        </button>
                                         <form action="/admin/contact/delete" method="POST"
                                             onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin nhắn này?');"
                                             style="display:inline;">
                                             <input type="hidden" name="id" value="{{this._id}}">
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-trash"></i> Xóa
+                                            <button type="submit" class="btn btn-sm btn-outline-danger ms-1">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
-                                    </td>
-                                </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
-                    </div>
-                    {{else}}
-                    <div class="alert alert-info">
-                        Chưa có tin nhắn liên hệ nào.
-                    </div>
-                    {{/if}}
+                                    </div>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
                 </div>
+                {{else}}
+                <div class="text-center py-5">
+                    <i class="fas fa-envelope-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Chưa có tin nhắn liên hệ nào từ khách hàng.</p>
+                </div>
+                {{/if}}
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Trả lời liên hệ -->
+{{#each contacts}}
+<div class="modal fade" id="replyModal{{this._id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog text-dark">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Trả lời liên hệ của {{this.name}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/admin/contact/reply" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="contactId" value="{{this._id}}">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nội dung khách gửi:</label>
+                        <blockquote class="bg-light p-3 rounded italic small border-start border-4">
+                            "{{this.message}}"
+                        </blockquote>
+                    </div>
+                    <div class="mb-3">
+                        <label for="replyText{{this._id}}" class="form-label fw-bold">Câu trả lời của bạn:</label>
+                        <textarea name="reply" id="replyText{{this._id}}" class="form-control" rows="5" placeholder="Nhập câu trả lời tại đây..." required>{{this.reply}}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary text-white">
+                        <i class="fas fa-paper-plane mr-1"></i> Gửi phản hồi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{/each}}

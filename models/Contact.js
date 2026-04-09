@@ -17,6 +17,18 @@ const contactSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    reply: {
+        type: String
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'replied'],
+        default: 'pending'
+    },
     createdAt: {
         type: Date,
         default: Date.now

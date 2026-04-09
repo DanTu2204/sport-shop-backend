@@ -1098,6 +1098,26 @@ router.get('/contact', requireAdmin, async function (req, res) {
     }
 });
 
+router.post('/contact/reply', requireAdmin, async function (req, res) {
+    try {
+        const { contactId, reply } = req.body;
+        
+        if (!contactId || !reply) {
+            return res.redirect('/admin/contact?error=missing_data');
+        }
+
+        await Contact.findByIdAndUpdate(contactId, {
+            reply: reply,
+            status: 'replied'
+        });
+
+        res.redirect('/admin/contact?success=replied');
+    } catch (err) {
+        console.error('Reply contact error:', err);
+        res.redirect('/admin/contact?error=server_error');
+    }
+});
+
 router.post('/contact/delete', requireAdmin, async function (req, res) {
     try {
         await Contact.findByIdAndDelete(req.body.id);

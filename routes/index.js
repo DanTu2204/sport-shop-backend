@@ -111,9 +111,10 @@ router.get('/profile', async function (req, res) {
 
     try {
         const userId = userSession.id || userSession._id;
-        const [user, orders] = await Promise.all([
+        const [user, orders, contacts] = await Promise.all([
             User.findById(userId).lean(),
-            Order.find({ user: userId }).sort({ createdAt: -1 }).lean()
+            Order.find({ user: userId }).sort({ createdAt: -1 }).lean(),
+            Contact.find({ user: userId }).sort({ createdAt: -1 }).lean()
         ]);
 
         if (!user) {
@@ -123,7 +124,8 @@ router.get('/profile', async function (req, res) {
         res.render('home/profile', {
             title: 'Tài khoản của tôi',
             user: user,
-            orders: orders
+            orders: orders,
+            contacts: contacts
         });
     } catch (err) {
         console.error('Get profile error:', err);
@@ -545,11 +547,13 @@ router.post('/contact', async function (req, res) {
     const { name, email, subject, message } = req.body;
 
     try {
+        const user = getUser(req);
         const newContact = new Contact({
             name,
             email,
             subject,
-            message
+            message,
+            user: user ? (user.id || user._id) : null
         });
 
         await newContact.save();

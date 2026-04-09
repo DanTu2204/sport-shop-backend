@@ -18,7 +18,7 @@
                         <tbody>
                             {{#each orders}}
                             <tr>
-                                <td>{{this._id}}</td>
+                                <td><small>{{this._id}}</small></td>
                                 <td>
                                     <strong>{{this.contact.firstName}} {{this.contact.lastName}}</strong><br>
                                     <small>{{this.contact.email}}</small><br>
@@ -70,57 +70,6 @@
                                         </button>
                                     </div>
                                 </td>
-
-                                    <!-- Modal Chi tiết -->
-                                    <div class="modal fade" id="orderDetail{{this._id}}" tabindex="-1" role="dialog"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog modal-lg text-dark">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Chi tiết đơn hàng</h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <h6>Thông tin giao hàng</h6>
-                                                    <p>
-                                                        <strong>Địa chỉ:</strong> {{this.contact.address}},
-                                                        {{this.contact.district}}, {{this.contact.city}}<br>
-                                                        <strong>SĐT:</strong> {{this.contact.phone}}<br>
-                                                        <strong>Thanh toán:</strong> {{this.paymentMethod}}
-                                                    </p>
-                                                    <hr>
-                                                    <h6>Sản phẩm</h6>
-                                                    <table class="table table-sm">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Sản phẩm</th>
-                                                                <th>Giá</th>
-                                                                <th>SL</th>
-                                                                <th>Thành tiền</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {{#each this.items}}
-                                                            <tr>
-                                                                <td>{{this.name}}</td>
-                                                                <td>{{formatCurrency this.price}}</td>
-                                                                <td>{{this.quantity}}</td>
-                                                                <td>{{formatCurrency (multiply this.price
-                                                                    this.quantity)}}</td>
-                                                            </tr>
-                                                            {{/each}}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary text-white"
-                                                        data-bs-dismiss="modal">Đóng</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
                             </tr>
                             {{/each}}
                         </tbody>
@@ -130,3 +79,50 @@
         </div>
     </div>
 </div>
+
+<!-- Tách riêng Modal ra khỏi Table để tránh vỡ giao diện -->
+{{#each orders}}
+<div class="modal fade" id="orderDetail{{this._id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg text-dark">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Thông tin giao hàng</h6>
+                <p>
+                    <strong>Địa chỉ:</strong> {{this.contact.address}}, {{this.contact.district}}, {{this.contact.city}}<br>
+                    <strong>SĐT:</strong> {{this.contact.phone}}<br>
+                    <strong>Thanh toán:</strong> {{this.paymentMethod}}
+                </p>
+                <hr>
+                <h6>Sản phẩm</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>SL</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each this.items}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td>{{formatCurrency this.price}}</td>
+                            <td>{{this.quantity}}</td>
+                            <td>{{formatCurrency (multiply this.price this.quantity)}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{/each}}
