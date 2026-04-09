@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 const session = require('express-session');
+const { engine } = require('express-handlebars');
 const mongoose = require('mongoose');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors'); // Added CORS
@@ -29,23 +30,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Tự động chuyển đổi res.render thành res.json để biến các route cũ thành API
-app.use(function (req, res, next) {
-  res.render = function (view, data) {
-    const combinedData = { ...res.locals, ...data };
-    return res.json({ 
-      view: view, 
-      data: combinedData,
-      layout: res.locals.layout || app.locals.layout
-    });
-  };
-  res.redirect = function (url) {
-    return res.json({ redirect: url });
-  };
-  next();
-});
-
-// Session middleware (Optional if using JWT, but kept for compatibility)
+// Session middleware
 app.use(session({
   secret: 'your-secret-key-change-in-production',
   resave: false,
@@ -60,6 +45,65 @@ app.use(session({
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
+
+// ================= VIEW ENGINE (For Admin Dashboard) ==================
+app.engine('hbs', engine({
+  extname: '.hbs',
+  defaultLayout: false,
+  layoutsDir: path.join(__dirname, 'views', 'layouts'),
+  partialsDir: path.join(__dirname, 'views', 'partials'),
+  helpers: {
+    multiply: function (a, b) { return a * b; },
+    eq: function (a, b) { return a === b; },
+    formatCurrency: function (value) {
+      return (Number(value) * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+    },
+    if_eq: function(a, b, opts) {
+        if (a == b) {
+            return opts.fn(this);
+        } else {
+            return opts.inverse(this);
+        }
+    }
+  }
+}));
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Gắn route Admin ở đây để hiển thị HTML (KHÔNG bị đè bởi JSON API bên dưới)
+app.use('/admin', adminRouter);
+
+// Tự động chuyển đổi res.render thành res.json để biến các route cũ thành API cho FRONTEND
+app.use(function (req, res, next) {
+  // Chỉ ghi đè nếu URL không bắt đầu bằng /admin
+  if (req.url.startsWith('/admin')) {
+     return next();
+  }
+  
+  const originalRender = res.render;
+  res.render = function (view, data) {
+    if (req.originalUrl.startsWith('/api') || req.originalUrl === '/') {
+        const combinedData = { ...res.locals, ...data };
+        return res.json({ 
+          view: view, 
+          data: combinedData,
+          layout: res.locals.layout || app.locals.layout
+        });
+    }
+    // Fallback
+    originalRender.call(this, view, data);
+  };
+  
+  const originalRedirect = res.redirect;
+  res.redirect = function (url) {
+    if (req.originalUrl.startsWith('/api') || req.originalUrl === '/') {
+        return res.json({ redirect: url });
+    }
+    originalRedirect.call(this, url);
+  };
+  next();
+});
 
 // Middleware: Get active Categories for Navbar (Backend still needs this to send to Frontend)
 app.use(async function (req, res, next) {
@@ -82,7 +126,6 @@ app.use(function (req, res, next) {
 
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
-app.use('/api/admin', adminRouter);
 
 app.get('/', (req, res) => {
   res.json({
