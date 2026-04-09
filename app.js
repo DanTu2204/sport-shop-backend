@@ -291,8 +291,10 @@ app.use(function (req, res, next) {
       res.locals.flash = null;
     }
   }
+  next();
+});
 
-  app.use('/admin', adminRouter);
+app.use('/admin', adminRouter);
 app.use('/users', usersRouter);
 
 // Mandatory API routes for React SPA
@@ -338,7 +340,6 @@ app.get('/users/:id', async (req, res) => {
 // ================= API ROUTES ==================
 function isApiRequest(req) {
   const url = req.originalUrl || req.url;
-  // BẮT BUỘC coi là API request nếu đường dẫn có /api/
   if (url.includes('/api/')) return true;
 
   const acceptHeader = (req.headers.accept || '').toLowerCase();

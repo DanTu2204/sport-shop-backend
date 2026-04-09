@@ -10,7 +10,6 @@ router.all('/*', function (req, res, next) {
 
 function isApiRequest(req) {
   const url = req.originalUrl || req.url;
-  // BẮT BUỘC coi là API request nếu đường dẫn có /api/
   if (url.includes('/api/')) return true;
 
   const acceptHeader = (req.headers.accept || '').toLowerCase();
