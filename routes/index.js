@@ -532,7 +532,7 @@ router.post('/cart/remove-voucher', function (req, res) {
 });
 
 // ========================= UPDATE CART (API for React SPA) =================
-router.post('/api/cart/update', async function (req, res) {
+router.post('/cart/update', async function (req, res) {
     const { cart } = req.body;
     if (!cart) {
         return res.status(400).json({ success: false, message: 'Thiếu dữ liệu giỏ hàng.' });
