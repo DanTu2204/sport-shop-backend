@@ -753,13 +753,19 @@ router.post('/orders/update-status', requireAdmin, async function (req, res) {
             return res.redirect('/admin/orders?error=missing_params');
         }
 
-        // Nếu chuyển sang trạng thái "cancelled", hoàn trả lượt dùng voucher
-        if (status === 'cancelled') {
-            const order = await Order.findById(orderId);
-            if (order && order.status !== 'cancelled' && order.voucherCode) {
+        const order = await Order.findById(orderId);
+        if (order && order.voucherCode && order.status !== status) {
+            if (status === 'cancelled' && order.status !== 'cancelled') {
+                // Đơn bị hủy → hoàn trả 1 lượt dùng voucher
                 await Voucher.findOneAndUpdate(
                     { code: order.voucherCode, usedCount: { $gt: 0 } },
                     { $inc: { usedCount: -1 } }
+                );
+            } else if (order.status === 'cancelled' && status !== 'cancelled') {
+                // Đơn từ hủy chuyển sang trạng thái khác → cộng lại 1 lượt
+                await Voucher.findOneAndUpdate(
+                    { code: order.voucherCode },
+                    { $inc: { usedCount: 1 } }
                 );
             }
         }
