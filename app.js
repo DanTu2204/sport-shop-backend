@@ -84,6 +84,14 @@ app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/admin', adminRouter);
 
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Sport Shop API is running properly!',
+    documentation: 'Access API routes via /api'
+  });
+});
+
 // ================= ERROR HANDLER ==================
 app.use(function (req, res, next) {
   next(createError(404));
