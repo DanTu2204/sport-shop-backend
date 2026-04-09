@@ -216,9 +216,17 @@ app.use(function (req, res, next) {
   res.json = function (obj) {
     // Đảm bảo session được lưu trước khi trả về bất kỳ dữ liệu JSON nào (bao gồm Login)
     if (req.session) {
-      req.session.save(() => {
+      try {
+        req.session.save((err) => {
+          if (err) {
+            console.error('SESSION SAVE BRIDGE ERROR:', err);
+          }
+          return originalJson.call(this, obj);
+        });
+      } catch (saveError) {
+        console.error('SESSION SAVE CRASH:', saveError);
         return originalJson.call(this, obj);
-      });
+      }
     } else {
       return originalJson.call(this, obj);
     }

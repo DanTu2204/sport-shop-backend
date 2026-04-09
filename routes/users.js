@@ -286,8 +286,10 @@ router.post('/register', async function (req, res) {
     }
 
     // Hash password
+    console.log('BCRYPT DEBUG: Start hashing password...');
     const salt = await bcryptjs.genSalt(10);
     const hash = await bcryptjs.hash(password, salt);
+    console.log('BCRYPT DEBUG: Hashing complete.');
 
     // Tạo user mới
     const newUser = new User({
@@ -299,6 +301,7 @@ router.post('/register', async function (req, res) {
     });
 
     const savedUser = await newUser.save();
+    console.log('DB DEBUG: User saved successfully:', savedUser._id);
 
     const userInfo = {
       id: savedUser._id.toString(),
@@ -337,13 +340,13 @@ router.post('/register', async function (req, res) {
     if (isApi) {
       return res.status(500).json({
         success: false,
-        message: errorMessage + ' (' + err.message + ')'
+        message: errorMessage + ' (Detail: ' + err.message + ')'
       });
     }
 
     return res.status(500).render('home/register', {
       title: 'Đăng ký tài khoản',
-      errors: [errorMessage],
+      errors: [errorMessage + ' (' + err.message + ')'],
       form: { name: userName, email, phone },
       endpoint: '/users/register',
       next: req.query.redirect || '/'
