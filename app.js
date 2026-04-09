@@ -147,30 +147,42 @@ app.use('/admin', adminRouter);
 app.use(function (req, res, next) {
   // Chỉ ghi đè nếu URL không bắt đầu bằng /admin
   if (req.url.startsWith('/admin')) {
-     return next();
+    return next();
   }
-  
+
   const originalRender = res.render;
   res.render = function (view, data) {
-    if (req.originalUrl.startsWith('/api') || req.originalUrl === '/') {
-        const combinedData = { ...res.locals, ...data };
-        return res.json({ 
-          view: view, 
-          data: combinedData,
-          layout: res.locals.layout || app.locals.layout
-        });
+    // Luôn đảm bảo session được lưu trước khi gửi phản hồi JSON Render
+    const combinedData = { ...res.locals, ...data };
+    const sendResponse = () => {
+      return res.json({
+        view: view,
+        data: combinedData,
+        layout: res.locals.layout || app.locals.layout
+      });
+    };
+
+    if (req.session) {
+      req.session.save(sendResponse);
+    } else {
+      sendResponse();
     }
-    // Fallback
-    originalRender.call(this, view, data);
   };
-  
+
   const originalRedirect = res.redirect;
   res.redirect = function (url) {
-    if (req.originalUrl.startsWith('/api') || req.originalUrl === '/') {
-        return res.json({ redirect: url });
+    // Luôn đảm bảo session được lưu trước khi gửi phản hồi JSON Redirect
+    const sendRedirect = () => {
+      return res.json({ redirect: url });
+    };
+
+    if (req.session) {
+      req.session.save(sendRedirect);
+    } else {
+      sendRedirect();
     }
-    originalRedirect.call(this, url);
   };
+
   next();
 });
 
