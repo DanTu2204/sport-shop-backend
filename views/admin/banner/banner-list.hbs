@@ -88,7 +88,8 @@
     <div class="col-lg-4 col-md-6 mb-4">
         <div class="card shadow-sm border-0 h-100">
             <img src="{{this.image}}" class="card-img-top" alt="{{this.title}}"
-                style="height: 200px; object-fit: cover;">
+                style="height: 200px; object-fit: cover;"
+                onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Lỗi+ảnh';">
             <div class="card-body">
                 <h6 class="card-title">{{this.title}}</h6>
                 <p class="text-muted small mb-2">Vị trí: {{this.position}}</p>

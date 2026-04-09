@@ -83,10 +83,13 @@ router.get('/', async function (req, res) {
         const featuredProducts = await Product.find({ status: 'active' }).limit(8).sort({ stars: -1 }).lean();
         const recentProducts = await Product.find({ status: 'active' }).limit(8).sort({ createdAt: -1 }).lean();
 
-        // Fetch active banners for Home Carousel
+        // Fetch active banners for Home Carousel (Check status AND date)
+        const now = new Date();
         const banners = await require('../models/Banner').find({
             position: 'home-carousel',
-            status: 'active'
+            status: 'active',
+            startDate: { $lte: now },
+            endDate: { $gte: now }
         }).sort({ order: 1 }).lean();
 
         // Fetch Categories with Product Count & Image
