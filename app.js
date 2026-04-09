@@ -326,16 +326,16 @@ app.use(function (req, res, next) {
 
 // ================= ROUTING COORDINATION ==================
 
-// 1. Ưu tiên cao nhất: Redirect root Backend về Admin (Chỉ dành cho trình duyệt)
+// 1. Redirect root Backend về Admin (Dành cho trình duyệt)
 app.get('/', (req, res, next) => {
   if (isApiRequest(req)) return next();
   res.redirect('/admin/login');
 });
 
-// 2. Các Route API & SPA
+// 2. Các Route API & Quản trị
 app.use('/admin', adminRouter);
-app.use(['/api/users', '/users', '/api/api/users'], usersRouter);
-app.use(['/api', '/', '/api/api'], indexRouter);
+app.use(['/api/users', '/users'], usersRouter);
+app.use(['/api', '/'], indexRouter);
 
 // assignment test routes (id, name only)
 app.get('/users', async (req, res) => {

@@ -36,42 +36,44 @@
                                 <td>{{formatCurrency this.totalPrice}}</td>
                                 <td>
                                     {{#if_eq this.status 'pending'}}
-                                    <span class="badge badge-warning">Chờ xử lý</span>
+                                    <span class="badge badge-warning text-dark" style="color: #000 !important;">Chờ xử lý</span>
                                     {{/if_eq}}
                                     {{#if_eq this.status 'confirmed'}}
-                                    <span class="badge badge-info">Đã xác nhận</span>
+                                    <span class="badge badge-info text-white">Đã xác nhận</span>
                                     {{/if_eq}}
                                     {{#if_eq this.status 'shipping'}}
-                                    <span class="badge badge-primary">Đang giao</span>
+                                    <span class="badge badge-primary text-white">Đang giao</span>
                                     {{/if_eq}}
                                     {{#if_eq this.status 'completed'}}
-                                    <span class="badge badge-success">Hoàn thành</span>
+                                    <span class="badge badge-success text-white">Hoàn thành</span>
                                     {{/if_eq}}
                                     {{#if_eq this.status 'cancelled'}}
-                                    <span class="badge badge-danger">Đã hủy</span>
+                                    <span class="badge badge-danger text-white">Đã hủy</span>
                                     {{/if_eq}}
                                 </td>
                                 <td>
-                                    <form action="/admin/orders/update-status" method="POST" class="d-inline">
-                                        <input type="hidden" name="orderId" value="{{this._id}}">
-                                        <select name="status" class="form-control form-control-sm mb-2"
-                                            onchange="this.form.submit()">
-                                            <option value="pending" {{#if_eq this.status 'pending' }}selected{{/if_eq}}>
-                                                Chờ xử lý</option>
-                                            <option value="confirmed" {{#if_eq this.status 'confirmed'
-                                                }}selected{{/if_eq}}>Xác nhận</option>
-                                            <option value="shipping" {{#if_eq this.status 'shipping'
-                                                }}selected{{/if_eq}}>Giao hàng</option>
-                                            <option value="completed" {{#if_eq this.status 'completed'
-                                                }}selected{{/if_eq}}>Hoàn thành</option>
-                                            <option value="cancelled" {{#if_eq this.status 'cancelled'
-                                                }}selected{{/if_eq}}>Hủy</option>
-                                        </select>
-                                    </form>
-                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal"
-                                        data-target="#orderDetail{{this._id}}">
-                                        Chi tiết
-                                    </button>
+                                    <div class="d-flex flex-column align-items-center">
+                                        <form action="/admin/orders/update-status" method="POST" class="w-100 mb-1">
+                                            <input type="hidden" name="orderId" value="{{this._id}}">
+                                            <select name="status" class="form-control form-control-sm"
+                                                onchange="this.form.submit()" style="border: 1px solid #ced4da;">
+                                                <option value="pending" {{#if_eq this.status 'pending' }}selected{{/if_eq}}>
+                                                    Chờ xử lý</option>
+                                                <option value="confirmed" {{#if_eq this.status 'confirmed'
+                                                    }}selected{{/if_eq}}>Xác nhận</option>
+                                                <option value="shipping" {{#if_eq this.status 'shipping'
+                                                    }}selected{{/if_eq}}>Giao hàng</option>
+                                                <option value="completed" {{#if_eq this.status 'completed'
+                                                    }}selected{{/if_eq}}>Hoàn thành</option>
+                                                <option value="cancelled" {{#if_eq this.status 'cancelled'
+                                                    }}selected{{/if_eq}}>Hủy</option>
+                                            </select>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-info text-white w-100" data-toggle="modal"
+                                            data-target="#orderDetail{{this._id}}">
+                                            Xem chi tiết
+                                        </button>
+                                    </div>
 
                                     <!-- Modal Chi tiết -->
                                     <div class="modal fade" id="orderDetail{{this._id}}" tabindex="-1" role="dialog"
