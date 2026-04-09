@@ -159,50 +159,56 @@
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
         <h6 class="mb-0 text-dark">Bộ lọc & thao tác nhanh</h6>
         <div class="btn-group">
+            <a href="/admin/product" class="btn btn-outline-secondary btn-sm mr-2">
+                <i class="fa fa-sync-alt mr-1"></i>Làm mới
+            </a>
             <button class="btn btn-outline-primary btn-sm">
                 <i class="fa fa-download mr-1"></i>Xuất dữ liệu
-            </button>
-            <button class="btn btn-outline-success btn-sm">
-                <i class="fa fa-upload mr-1"></i>Nhập dữ liệu
             </button>
         </div>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <select class="form-select">
-                    <option selected>Tất cả danh mục</option>
-                    <option>Giày chạy bộ</option>
-                    <option>Áo thể thao</option>
-                    <option>Đồ yoga & gym</option>
-                    <option>Phụ kiện tập luyện</option>
-                </select>
+        <form action="/admin/product" method="GET" id="filterForm">
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label class="small font-weight-bold text-muted">Danh mục</label>
+                    <select name="category" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <option value="all" {{#if_eq filter.category 'all'}}selected{{/if_eq}}>Tất cả danh mục</option>
+                        {{#each categories}}
+                        <option value="{{this.name}}" {{#if_eq ../filter.category this.name}}selected{{/if_eq}}>{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="small font-weight-bold text-muted">Trạng thái kho</label>
+                    <select name="stock" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <option value="" {{#if (eq filter.stock '')}}selected{{/if}}>Tất cả trạng thái kho</option>
+                        <option value="in" {{#if (eq filter.stock 'in')}}selected{{/if}}>Còn hàng (>10)</option>
+                        <option value="low" {{#if (eq filter.stock 'low')}}selected{{/if}}>Sắp hết hàng (1-10)</option>
+                        <option value="out" {{#if (eq filter.stock 'out')}}selected{{/if}}>Hết hàng (0)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="small font-weight-bold text-muted">Trạng thái bán</label>
+                    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+                        <option value="all" {{#if_eq filter.status 'all'}}selected{{/if_eq}}>Tất cả trạng thái</option>
+                        <option value="active" {{#if_eq filter.status 'active'}}selected{{/if_eq}}>Đang bán (Active)</option>
+                        <option value="inactive" {{#if_eq filter.status 'inactive'}}selected{{/if_eq}}>Ngừng bán (Inactive)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="small font-weight-bold text-muted">Tìm kiếm nhanh</label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" name="search" class="form-control" placeholder="Tên hoặc mã SP..." value="{{filter.search}}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <select class="form-select">
-                    <option selected>Tất cả thương hiệu</option>
-                    <option>Nike</option>
-                    <option>Adidas</option>
-                    <option>Lululemon</option>
-                    <option>Under Armour</option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <select class="form-select">
-                    <option selected>Trạng thái kho</option>
-                    <option>Còn hàng</option>
-                    <option>Sắp hết hàng</option>
-                    <option>Hết hàng</option>
-                </select>
-            </div>
-            <div class="col-md-3 mb-3">
-                <select class="form-select">
-                    <option selected>Trạng thái sản phẩm</option>
-                    <option>Đang bán</option>
-                    <option>Ngừng bán</option>
-                </select>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 

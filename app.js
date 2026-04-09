@@ -161,9 +161,6 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Gắn route Admin ở đây để hiển thị HTML (KHÔNG bị đè bởi JSON API bên dưới)
-app.use('/admin', adminRouter);
-
 // Tự động chuyển đổi res.render thành res.json để biến các route cũ thành API cho FRONTEND
 app.use(function (req, res, next) {
   // Chỉ ghi đè nếu URL không bắt đầu bằng /admin

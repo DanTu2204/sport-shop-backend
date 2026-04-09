@@ -496,20 +496,58 @@ router.get('/category/import', requireAdmin, function (req, res) {
 // ========== PRODUCT ==========
 router.get('/product', requireAdmin, async function (req, res) {
     try {
-        const products = await Product.find().sort({ createdAt: -1 }).lean();
+        const { category, status, stock, search } = req.query;
+        let query = {};
 
-        // Calculate stats
-        const totalProducts = products.length;
-        const inStock = products.filter(p => p.quantity > 10).length;
-        const lowStock = products.filter(p => p.quantity > 0 && p.quantity <= 10).length;
-        const outOfStock = products.filter(p => p.quantity === 0).length;
+        // Lọc theo từ khóa tìm kiếm
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { code: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        // Lọc theo danh mục
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+
+        // Lọc theo trạng thái active/inactive
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+
+        // Lọc theo tình trạng kho
+        if (stock) {
+            if (stock === 'out') {
+                query.quantity = 0;
+            } else if (stock === 'low') {
+                query.quantity = { $gt: 0, $lte: 10 };
+            } else if (stock === 'in') {
+                query.quantity = { $gt: 10 };
+            }
+        }
+
+        const [products, categories] = await Promise.all([
+            Product.find(query).sort({ createdAt: -1 }).lean(),
+            Category.find({ status: 'active' }).lean()
+        ]);
+
+        // Tính toán thống kê (Dựa trên toàn bộ sản phẩm để đồng nhất với các card overview)
+        const allProductsStats = await Product.find({}, 'quantity');
+        const totalProducts = allProductsStats.length;
+        const inStock = allProductsStats.filter(p => p.quantity > 10).length;
+        const lowStock = allProductsStats.filter(p => p.quantity > 0 && p.quantity <= 10).length;
+        const outOfStock = allProductsStats.filter(p => p.quantity === 0).length;
 
         res.render('admin/product/product-list', {
             title: 'Product Management',
             isProduct: true,
             adminUser: res.locals.adminUser,
             products: products,
-            stats: { totalProducts, inStock, lowStock, outOfStock }
+            categories: categories,
+            stats: { totalProducts, inStock, lowStock, outOfStock },
+            filter: { category, status, stock, search }
         });
     } catch (err) {
         console.error('Get products error:', err);

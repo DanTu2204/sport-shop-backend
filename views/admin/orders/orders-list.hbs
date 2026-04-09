@@ -12,8 +12,7 @@
                                 <th>Sản phẩm</th>
                                 <th>Ngày đặt</th>
                                 <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
+                                <th>Trạng thái & Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,58 +31,55 @@
                                         {{/each}}
                                     </ul>
                                 </td>
-                                <td>{{this.createdAt}}</td>
+                                <td>{{formatDate this.createdAt}}</td>
                                 <td>{{formatCurrency this.totalPrice}}</td>
                                 <td>
-                                    {{#if_eq this.status 'pending'}}
-                                    <span class="badge badge-warning text-dark" style="color: #000 !important;">Chờ xử lý</span>
-                                    {{/if_eq}}
-                                    {{#if_eq this.status 'confirmed'}}
-                                    <span class="badge badge-info text-white">Đã xác nhận</span>
-                                    {{/if_eq}}
-                                    {{#if_eq this.status 'shipping'}}
-                                    <span class="badge badge-primary text-white">Đang giao</span>
-                                    {{/if_eq}}
-                                    {{#if_eq this.status 'completed'}}
-                                    <span class="badge badge-success text-white">Hoàn thành</span>
-                                    {{/if_eq}}
-                                    {{#if_eq this.status 'cancelled'}}
-                                    <span class="badge badge-danger text-white">Đã hủy</span>
-                                    {{/if_eq}}
-                                </td>
-                                <td>
                                     <div class="d-flex flex-column align-items-center">
+                                        <div class="mb-2">
+                                            {{#if_eq this.status 'pending'}}
+                                            <span class="badge bg-warning text-dark" style="font-weight: bold;">Chờ xử lý</span>
+                                            {{/if_eq}}
+                                            {{#if_eq this.status 'confirmed'}}
+                                            <span class="badge bg-info text-white">Đã xác nhận</span>
+                                            {{/if_eq}}
+                                            {{#if_eq this.status 'shipping'}}
+                                            <span class="badge bg-primary text-white">Đang giao</span>
+                                            {{/if_eq}}
+                                            {{#if_eq this.status 'completed'}}
+                                            <span class="badge bg-success text-white">Hoàn thành</span>
+                                            {{/if_eq}}
+                                            {{#if_eq this.status 'cancelled'}}
+                                            <span class="badge bg-danger text-white">Đã hủy</span>
+                                            {{/if_eq}}
+                                        </div>
                                         <form action="/admin/orders/update-status" method="POST" class="w-100 mb-1">
                                             <input type="hidden" name="orderId" value="{{this._id}}">
                                             <select name="status" class="form-control form-control-sm"
-                                                onchange="this.form.submit()" style="border: 1px solid #ced4da;">
-                                                <option value="pending" {{#if_eq this.status 'pending' }}selected{{/if_eq}}>
-                                                    Chờ xử lý</option>
-                                                <option value="confirmed" {{#if_eq this.status 'confirmed'
-                                                    }}selected{{/if_eq}}>Xác nhận</option>
-                                                <option value="shipping" {{#if_eq this.status 'shipping'
-                                                    }}selected{{/if_eq}}>Giao hàng</option>
-                                                <option value="completed" {{#if_eq this.status 'completed'
-                                                    }}selected{{/if_eq}}>Hoàn thành</option>
-                                                <option value="cancelled" {{#if_eq this.status 'cancelled'
-                                                    }}selected{{/if_eq}}>Hủy</option>
+                                                onchange="this.form.submit()" style="border: 1px solid #ced4da; font-size: 12px;">
+                                                <option value="" disabled selected>— Đổi trạng thái —</option>
+                                                <option value="pending">Chờ xử lý</option>
+                                                <option value="confirmed">Xác nhận</option>
+                                                <option value="shipping">Giao hàng</option>
+                                                <option value="completed">Hoàn thành</option>
+                                                <option value="cancelled">Hủy</option>
                                             </select>
                                         </form>
-                                        <button type="button" class="btn btn-sm btn-info text-white w-100" data-toggle="modal"
-                                            data-target="#orderDetail{{this._id}}">
+                                        <button type="button" class="btn btn-sm btn-info text-white w-100" data-bs-toggle="modal"
+                                            data-bs-target="#orderDetail{{this._id}}" style="font-size: 12px;">
                                             Xem chi tiết
                                         </button>
                                     </div>
+                                </td>
 
                                     <!-- Modal Chi tiết -->
                                     <div class="modal fade" id="orderDetail{{this._id}}" tabindex="-1" role="dialog"
                                         aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
+                                        <div class="modal-dialog modal-lg text-dark">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title">Chi tiết đơn hàng {{this._id}}</h5>
-                                                    <button type="button" class="close"
-                                                        data-dismiss="modal"><span>&times;</span></button>
+                                                    <h5 class="modal-title">Chi tiết đơn hàng</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <h6>Thông tin giao hàng</h6>
@@ -118,8 +114,8 @@
                                                     </table>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-dismiss="modal">Đóng</button>
+                                                    <button type="button" class="btn btn-secondary text-white"
+                                                        data-bs-dismiss="modal">Đóng</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -128,17 +124,6 @@
                             </tr>
                             {{/each}}
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>Mã Đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Sản phẩm</th>
-                                <th>Ngày đặt</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
