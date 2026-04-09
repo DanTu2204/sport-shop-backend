@@ -273,7 +273,7 @@ router.post('/orders/:id/confirm', async function (req, res) {
 });
 
 // User Cancel Order & Return Stock
-router.post('/api/orders/:id/cancel', async function (req, res) {
+router.post('/orders/:id/cancel', async function (req, res) {
     const user = getUser(req);
     if (!user) return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
 
