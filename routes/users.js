@@ -47,6 +47,19 @@ function isApiRequest(req) {
   return false;
 }
 
+// ==================== GET CURRENT USER ====================
+router.get('/me', function (req, res) {
+  if (req.session && req.session.user) {
+    return res.status(200).json({
+      success: true,
+      user: req.session.user,
+      cartCount: req.session.cart ? req.session.cart.length : 0,
+      wishlistCount: req.session.wishlist ? req.session.wishlist.length : 0
+    });
+  }
+  res.status(200).json({ success: false, user: null });
+});
+
 // ==================== LOGIN ====================
 router.get('/login', function (req, res) {
   res.render('home/login', {
