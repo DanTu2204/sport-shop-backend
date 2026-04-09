@@ -77,35 +77,34 @@ router.get('/categories', async function (req, res) {
 
 // ========== HOME PAGE ==========
 router.get('/', async function (req, res) {
-
     try {
-        // Fetch products from DB
-        const featuredProducts = await Product.find({ status: 'active' }).limit(8).sort({ stars: -1 }).lean();
-        const recentProducts = await Product.find({ status: 'active' }).limit(8).sort({ createdAt: -1 }).lean();
-
-        // Fetch active banners for Home Carousel (Check status AND date)
         const now = new Date();
         const endOfToday = new Date(now);
         endOfToday.setHours(23, 59, 59, 999);
 
-        const banners = await require('../models/Banner').find({
-            position: 'home-carousel',
-            status: 'active',
-            startDate: { $lte: endOfToday },
-            endDate: { $gte: now }
-        }).sort({ order: 1 }).lean();
+        // 1. CHẠY SONG SONG CÁC TRUY VẤN ĐỘC LẬP
+        const [featuredProducts, recentProducts, banners, categories] = await Promise.all([
+            Product.find({ status: 'active' }).limit(8).sort({ stars: -1 }).lean(),
+            Product.find({ status: 'active' }).limit(8).sort({ createdAt: -1 }).lean(),
+            require('../models/Banner').find({
+                position: 'home-carousel',
+                status: 'active',
+                startDate: { $lte: endOfToday },
+                endDate: { $gte: now }
+            }).sort({ order: 1 }).lean(),
+            // 2. SỬ DỤNG AGGREGATION ĐỂ LẤY CATEGORY VÀ SỐ LƯỢNG SP TRONG 1 LẦN GỌI (Fix N+1 Query)
+            Product.aggregate([
+                { $match: { status: 'active' } },
+                { $group: { _id: "$category", productCount: { $sum: 1 } } }
+            ]).then(async (counts) => {
+                const cats = await Category.find({ status: 'active' }).lean();
+                return cats.map(cat => {
+                    const countObj = counts.find(c => c._id === cat.name);
+                    return { ...cat, productCount: countObj ? countObj.productCount : 0 };
+                });
+            })
+        ]);
 
-        // Fetch Categories with Product Count & Image
-        const categories = await Category.find({ status: 'active' }).lean();
-        for (let cat of categories) {
-            const count = await Product.countDocuments({ category: cat.name, status: 'active' });
-            cat.productCount = count;
-
-            const product = await Product.findOne({ category: cat.name, status: 'active', image: { $exists: true, $ne: '' } }).select('image').lean();
-            cat.image = product ? product.image : 'img/cat-1.jpg';
-        }
-
-        // Map _id to id for compatibility if needed, though handlebars can access _id
         const mapProducts = (products) => products.map(p => ({ ...p, id: p._id.toString() }));
 
         res.render('home/index', {
@@ -1222,24 +1221,21 @@ router.get('/shop', async function (req, res) {
             case 'newest': default: sortOption = { createdAt: -1 }; break;
         }
 
-        const totalProducts = await Product.countDocuments(query);
-        const products = await Product.find(query)
-            .sort(sortOption)
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
-
-        // Fetch Shop Banners (Check status AND date with timezone fix)
-        const now = new Date();
-        const endOfToday = new Date(now);
-        endOfToday.setHours(23, 59, 59, 999);
-
-        const banners = await require('../models/Banner').find({
-            position: 'shop-top',
-            status: 'active',
-            startDate: { $lte: endOfToday },
-            endDate: { $gte: now }
-        }).sort({ order: 1 }).lean();
+        // SONG SONG HÓA CÁC TRUY VẤN TRANG SHOP
+        const [totalProducts, products, banners] = await Promise.all([
+            Product.countDocuments(query),
+            Product.find(query)
+                .sort(sortOption)
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .lean(),
+            require('../models/Banner').find({
+                position: 'shop-top',
+                status: 'active',
+                startDate: { $lte: (new Date()).setHours(23, 59, 59, 999) },
+                endDate: { $gte: new Date() }
+            }).sort({ order: 1 }).lean()
+        ]);
 
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -1249,7 +1245,7 @@ router.get('/shop', async function (req, res) {
         res.render('home/shop', {
             title: 'Shop Page',
             products: mapProducts(products),
-            banners, // Pass banners to view
+            banners, 
             category,
             price,
             color,

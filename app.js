@@ -237,15 +237,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Middleware: Get active Categories for Navbar (Backend still needs this to send to Frontend)
-app.use(async function (req, res, next) {
-  try {
-    const categories = await Category.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
-    res.locals.categories = categories;
-  } catch (err) {
-    res.locals.categories = [];
-  }
-  next();
+// Middleware to transform res.render to res.json for API requests remains above...
+next();
 });
 
 // Middleware để truyền dữ liệu dùng chung vào view (Đồng bộ đầy đủ từ bản gốc)

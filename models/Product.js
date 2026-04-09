@@ -27,4 +27,11 @@ const ProductSchema = new Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
+// Indexes for performance optimization
+ProductSchema.index({ status: 1, category: 1 });
+ProductSchema.index({ status: 1, stars: -1 });
+ProductSchema.index({ status: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, price: 1 });
+ProductSchema.index({ name: 'text' }); // For faster search
+
 module.exports = mongoose.model('products', ProductSchema);
