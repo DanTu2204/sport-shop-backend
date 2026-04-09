@@ -325,15 +325,15 @@ app.use(function (req, res, next) {
 });
 
 app.use('/admin', adminRouter);
-app.use('/users', usersRouter);
 
-// Mandatory API routes for React SPA
-app.use('/api', indexRouter);
-app.use('/api/users', usersRouter);
+// ================= ROUTING COORDINATION ==================
+// Hỗ trợ cả đường dẫn gốc, /api và /api/api để tránh lỗi Not Found khi cộng dồn URL
+app.use(['/api/users', '/users', '/api/api/users'], usersRouter);
+app.use(['/api', '/', '/api/api'], indexRouter);
 
-app.use('/', indexRouter);
-
-app.get('/', (req, res) => {
+// Redirect root to admin (optional, for convenience)
+app.get('/', (req, res, next) => {
+  if (isApiRequest(req)) return next();
   res.redirect('/admin/login');
 });
 
