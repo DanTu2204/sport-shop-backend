@@ -909,29 +909,51 @@ router.post('/inventory/import', requireAdmin, async function (req, res) {
 router.get('/voucher', requireAdmin, async function (req, res) {
     try {
         const vouchers = await Voucher.find().sort({ createdAt: -1 });
-        // Format dates for display
+        
+        // Calculate dynamic stats
+        const now = new Date();
+        const stats = {
+            total: vouchers.length,
+            active: 0,
+            usedTotal: 0,
+            expired: 0
+        };
+
         const vouchersFormatted = vouchers.map(v => {
             const doc = v.toJSON();
-            // Helper or logic to format date as DD/MM/YYYY
+            const start = new Date(doc.startDate);
+            const end = new Date(doc.endDate);
+            
+            // Format dates
             const formatDate = (d) => {
-                if (!d) return '';
                 const date = new Date(d);
                 return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
             };
             doc.startDateFormatted = formatDate(doc.startDate);
             doc.endDateFormatted = formatDate(doc.endDate);
-            // Check status if expired
-            if (new Date() > new Date(doc.endDate)) {
+
+            // Accumulate usedCount
+            stats.usedTotal += (doc.usedCount || 0);
+
+            // Logic to determine status
+            if (now > end) {
                 doc.status = 'expired';
+                stats.expired++;
+            } else if (doc.status === 'active') {
+                stats.active++;
+            } else if (doc.status === 'inactive') {
+                // Do not increment active or expired
             }
+
             return doc;
         });
 
         res.render('admin/voucher/voucher-list', {
-            title: 'Voucher Management',
+            title: 'Quản lý Mã giảm giá',
             isVoucher: true,
             adminUser: res.locals.adminUser,
-            vouchers: vouchersFormatted
+            vouchers: vouchersFormatted,
+            stats: stats
         });
     } catch (err) {
         console.error('Get vouchers error:', err);

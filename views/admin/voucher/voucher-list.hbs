@@ -1,3 +1,10 @@
+<!-- Custom Styles for Badges -->
+<style>
+    .badge-percent { background-color: #fd7e14; color: white; }
+    .badge-fixed { background-color: #6610f2; color: white; }
+    .badge-usage { font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+</style>
+
 <!-- Header Section -->
 <div class="container-fluid mb-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -26,7 +33,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng mã giảm giá</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.total}}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
@@ -41,7 +48,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đang hoạt động</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.active}}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-check-circle fa-2x text-gray-300"></i>
@@ -55,8 +62,8 @@
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Đã sử dụng</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">245</div>
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tổng lượt đã dùng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.usedTotal}}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-chart-line fa-2x text-gray-300"></i>
@@ -71,7 +78,7 @@
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Đã hết hạn</div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.expired}}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -110,9 +117,9 @@
                         <td><strong>{{this.code}}</strong></td>
                         <td>
                             {{#if_eq this.type 'percent'}}
-                            <span class="badge badge-info">Phần trăm</span>
+                            <span class="badge badge-percent">Phần trăm</span>
                             {{else}}
-                            <span class="badge badge-primary">Cố định</span>
+                            <span class="badge badge-fixed">Cố định</span>
                             {{/if_eq}}
                         </td>
                         <td>
@@ -124,7 +131,7 @@
                         </td>
                         <td>{{this.startDateFormatted}}</td>
                         <td>{{this.endDateFormatted}}</td>
-                        <td>{{this.usedCount}}/{{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</td>
+                        <td><span class="badge badge-light border badge-usage">{{this.usedCount}}/{{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</span></td>
                         <td>
                             {{#if_eq this.status 'active'}}
                             <span class="badge badge-success">Hoạt động</span>
