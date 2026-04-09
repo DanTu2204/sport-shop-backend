@@ -59,6 +59,20 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Helper function: Nhận diện API request (Dùng cho cả bridge và routes)
+function isApiRequest(req) {
+  const url = req.originalUrl || req.url;
+  if (url.includes('/api/')) return true;
+
+  const acceptHeader = (req.headers.accept || '').toLowerCase();
+  const contentType = (req.headers['content-type'] || '').toLowerCase();
+  
+  return (
+    acceptHeader.includes('application/json') ||
+    contentType.includes('application/json')
+  );
+}
+
 // Trust proxy for secure cookies on Render
 app.set('trust proxy', 1);
 
@@ -158,36 +172,44 @@ app.use(function (req, res, next) {
   }
 
   const originalRender = res.render;
-  res.render = function (view, data) {
-    // Luôn đảm bảo session được lưu trước khi gửi phản hồi JSON Render
-    const combinedData = { ...res.locals, ...data };
-    const sendResponse = () => {
-      return res.json({
-        view: view,
-        data: combinedData,
-        layout: res.locals.layout || app.locals.layout
-      });
-    };
+  res.render = function (view, data, callback) {
+    // Nếu là API request, trả về JSON thay vì HTML
+    if (isApiRequest(req)) {
+      const combinedData = { ...res.locals, ...data };
+      const sendResponse = () => {
+        return res.json({
+          view: view,
+          data: combinedData,
+          layout: res.locals.layout || app.locals.layout
+        });
+      };
 
-    if (req.session) {
-      req.session.save(sendResponse);
-    } else {
-      sendResponse();
+      if (req.session) {
+        return req.session.save(sendResponse);
+      } else {
+        return sendResponse();
+      }
     }
+    // Nếu không phải API, dùng render gốc
+    return originalRender.call(this, view, data, callback);
   };
 
   const originalRedirect = res.redirect;
   res.redirect = function (url) {
-    // Luôn đảm bảo session được lưu trước khi gửi phản hồi JSON Redirect
-    const sendRedirect = () => {
-      return res.json({ redirect: url });
-    };
+    // Nếu là API request, trả về tín hiệu redirect bằng JSON
+    if (isApiRequest(req)) {
+      const sendRedirect = () => {
+        return res.json({ redirect: url });
+      };
 
-    if (req.session) {
-      req.session.save(sendRedirect);
-    } else {
-      sendRedirect();
+      if (req.session) {
+        return req.session.save(sendRedirect);
+      } else {
+        return sendRedirect();
+      }
     }
+    // Nếu không phải API, dùng redirect gốc
+    return originalRedirect.call(this, url);
   };
 
   const originalJson = res.json;
@@ -334,66 +356,6 @@ app.get('/users/:id', async (req, res) => {
     }
   } catch (err) {
     res.status(404).json({ success: false, message: 'Invalid User ID' });
-  }
-});
-
-// ================= API ROUTES ==================
-function isApiRequest(req) {
-  const url = req.originalUrl || req.url;
-  if (url.includes('/api/')) return true;
-
-  const acceptHeader = (req.headers.accept || '').toLowerCase();
-  const contentType = (req.headers['content-type'] || '').toLowerCase();
-  
-  return (
-    acceptHeader.includes('application/json') ||
-    contentType.includes('application/json')
-  );
-}
-
-app.post('/login', async function (req, res, next) {
-  if (!isApiRequest(req)) return next();
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ success: false, message: 'Vui lòng nhập đầy đủ email và mật khẩu.' });
-
-  try {
-    const user = await User.findOne({ email: email });
-    if (!user) return res.status(400).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
-    const matched = await bcryptjs.compare(password, user.password);
-    if (!matched) return res.status(400).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
-
-    const userInfo = { id: user._id.toString(), name: user.name, email: user.email, role: user.role || 'user' };
-    req.session.user = userInfo;
-    const redirectTo = user.role === 'admin' ? '/admin' : '/';
-    return res.status(200).json({ success: true, message: 'Đăng nhập thành công.', user: userInfo, redirect: redirectTo });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Lỗi đăng nhập.' });
-  }
-});
-
-app.post('/register', async function (req, res, next) {
-  if (!isApiRequest(req)) return next();
-  const { name, fullname, email, password, confirmPassword, confirmpassword } = req.body;
-  const userName = name || fullname;
-  const confirmPass = confirmPassword || confirmpassword;
-
-  if (!userName || !email || !password || !confirmPass) {
-    return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ thông tin.' });
-  }
-
-  try {
-    const existingUser = await User.findOne({ email: email });
-    if (existingUser) return res.status(400).json({ success: false, message: 'Email đã được đăng ký.' });
-
-    const salt = await bcryptjs.genSalt(10);
-    const hash = await bcryptjs.hash(password, salt);
-    const newUser = new User({ name: userName, email: email, password: hash, role: 'user' });
-    const savedUser = await newUser.save();
-
-    const userInfo = { id: savedUser._id.toString(), name: savedUser.name, email: savedUser.email, role: savedUser.role || 'user' };
-    return res.status(200).json({ success: true, message: 'Đăng ký thành công!', user: userInfo, redirect: '/users/login' });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: 'Lỗi đăng ký.' });
   }
 });
 

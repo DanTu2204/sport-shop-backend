@@ -220,10 +220,11 @@ router.get('/register', function (req, res) {
   });
 });
 
+
 router.post('/register', async function (req, res) {
   // Xử lý cả confirmPassword và confirmpassword (case insensitive)
-  // Hỗ trợ cả name và fullname
-  const { name, fullname, email, password, confirmPassword, confirmpassword } = req.body;
+  // Hỗ trợ cả name và fullname, bổ sung phone
+  const { name, fullname, email, phone, password, confirmPassword, confirmpassword } = req.body;
   const userName = name || fullname;
   const confirmPass = confirmPassword || confirmpassword;
   const isApi = isApiRequest(req);
@@ -292,18 +293,12 @@ router.post('/register', async function (req, res) {
     const newUser = new User({
       name: userName,
       email: email,
+      phone: phone, // Đã thêm trường phone
       password: hash,
       role: 'user'
     });
 
     const savedUser = await newUser.save();
-
-    // Debug log
-    console.log('User registered successfully:', {
-      id: savedUser._id.toString(),
-      name: savedUser.name,
-      email: savedUser.email
-    });
 
     const userInfo = {
       id: savedUser._id.toString(),
@@ -311,30 +306,30 @@ router.post('/register', async function (req, res) {
       email: savedUser.email,
       role: savedUser.role || 'user'
     };
+    
+    // Tự động đăng nhập sau khi đăng ký thành công cho SPA
+    if (req.session) {
+      req.session.user = userInfo;
+    }
 
-    // Response cho Postman/AJAX - KHÔNG tự động đăng nhập
     if (isApi) {
       return res.status(200).json({
         success: true,
-        message: 'Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.',
+        message: 'Đăng ký thành công!',
         user: userInfo,
-        // Sau khi đăng ký xong, phía client sẽ chuyển hướng về /login
-        redirect: '/login'
+        redirect: '/'
       });
     }
 
-    // Response cho Browser - KHÔNG tự động đăng nhập, redirect về trang login
-    req.session.flash = {
-      type: 'success',
-      message: 'Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.'
-    };
-    // Sau khi đăng ký xong, chuyển hướng về trang đăng nhập /login
-    return res.redirect('/login');
+    if (req.session) {
+      req.session.flash = { type: 'success', message: 'Đăng ký thành công!' };
+    }
+    return res.redirect('/');
 
   } catch (err) {
-    console.error('Register error:', err);
-    let errorMessage = 'Lỗi đăng ký. Vui lòng thử lại.';
-
+    console.error('REGISTER CRITICAL ERROR:', err);
+    let errorMessage = 'Lỗi hệ thống khi đăng ký. Vui lòng thử lại sau.';
+    
     if (err.code === 11000) {
       errorMessage = 'Email đã được đăng ký.';
     }
@@ -342,20 +337,21 @@ router.post('/register', async function (req, res) {
     if (isApi) {
       return res.status(500).json({
         success: false,
-        message: errorMessage
+        message: errorMessage + ' (' + err.message + ')'
       });
     }
+
     return res.status(500).render('home/register', {
       title: 'Đăng ký tài khoản',
       errors: [errorMessage],
-      form: { name: userName, email },
+      form: { name: userName, email, phone },
       endpoint: '/users/register',
       next: req.query.redirect || '/'
     });
   }
 });
 
-
+// ==================== LOGOUT ====================
 router.get('/logout', function (req, res) {
   const isApi = isApiRequest(req);
 
