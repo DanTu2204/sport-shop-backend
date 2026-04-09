@@ -108,8 +108,8 @@
                 <p class="card-text text-muted small text-truncate">{{this.description}}</p>
                 <div class="row text-center mb-3">
                     <div class="col-6">
-                        <div class="text-primary font-weight-bold">{{this.price}}₫</div>
-                        <small class="text-muted">Giá</small>
+                        <div class="text-primary font-weight-bold">{{formatCurrency this.price}}</div>
+                        <small class="text-muted">Giá (VND)</small>
                     </div>
                     <div class="col-6">
                         <div class="text-success font-weight-bold">{{this.quantity}}</div>

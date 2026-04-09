@@ -131,7 +131,7 @@ app.engine('hbs', engine({
       if (isNaN(number)) {
         number = 0;
       }
-      return (number * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+      return (number).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     },
     add: function (a, b) { return parseInt(a) + parseInt(b); },
     subtract: function (a, b) { return Math.max(1, parseInt(a) - parseInt(b)); },

@@ -84,7 +84,7 @@
 
 <script>
     const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
-    const currencyMultiplier = 1000; // chuyển đổi từ đơn giá mô phỏng sang VND thực tế
+    const currencyMultiplier = 1; // Đã chuyển sang nhập liệu VND đầy đủ
 
     function formatCurrency(value) {
         return currencyFormatter.format((parseFloat(value) || 0) * currencyMultiplier);

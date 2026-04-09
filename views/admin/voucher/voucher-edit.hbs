@@ -35,13 +35,13 @@
                     <select name="type" class="form-control" required>
                         <option value="percent" {{#if_eq voucher.type 'percent' }}selected{{/if_eq}}>Phần trăm (%)
                         </option>
-                        <option value="fixed" {{#if_eq voucher.type 'fixed' }}selected{{/if_eq}}>Số tiền cố định (đ)
+                        <option value="fixed" {{#if_eq voucher.type 'fixed' }}selected{{/if_eq}}>Số tiền cố định (VND)
                         </option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Giá trị giảm <span class="text-danger">*</span></label>
-                    <input type="number" name="value" class="form-control" value="{{voucher.value}}" required>
+                    <label id="valueLabel">Giá trị giảm <span class="text-danger">*</span></label>
+                    <input type="number" name="value" id="valueInput" class="form-control" value="{{voucher.value}}" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Số lượng tối đa</label>
@@ -58,7 +58,7 @@
                     <input type="date" name="endDate" class="form-control" value="{{voucher.endDateValue}}" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label>Giá trị đơn hàng tối thiểu (đ)</label>
+                    <label>Giá trị đơn hàng tối thiểu (VND)</label>
                     <input type="number" name="minOrderValue" class="form-control" value="{{voucher.minOrderValue}}"
                         placeholder="0 = không giới hạn">
                 </div>
@@ -82,3 +82,26 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.querySelector('select[name="type"]');
+        const valueLabel = document.getElementById('valueLabel');
+        const valueInput = document.getElementById('valueInput');
+
+        function updateLabels() {
+            const type = typeSelect.value;
+            if (type === 'percent') {
+                valueLabel.innerHTML = 'Mức giảm (%) <span class="text-danger">*</span>';
+                valueInput.placeholder = 'VD: 10, 20...';
+            } else if (type === 'fixed') {
+                valueLabel.innerHTML = 'Số tiền giảm (VND) <span class="text-danger">*</span>';
+                valueInput.placeholder = 'VD: 50000, 100000...';
+            }
+        }
+
+        typeSelect.addEventListener('change', updateLabels);
+        // Initial setup
+        updateLabels();
+    });
+</script>
