@@ -531,6 +531,56 @@ router.post('/cart/remove-voucher', function (req, res) {
     res.json({ success: true, message: 'Đã gỡ mã giảm giá.' });
 });
 
+// ========================= UPDATE CART (API for React SPA) =================
+router.post('/api/cart/update', async function (req, res) {
+    const { cart } = req.body;
+    if (!cart) {
+        return res.status(400).json({ success: false, message: 'Thiếu dữ liệu giỏ hàng.' });
+    }
+
+    // Cập nhật session
+    req.session.cart = cart;
+
+    // Đồng bộ DB nếu đã đăng nhập
+    if (req.session.user && req.session.user.id) {
+        try {
+            await User.findByIdAndUpdate(req.session.user.id, { cart: cart });
+        } catch (err) {
+            console.error('Error syncing cart to DB:', err);
+        }
+    }
+
+    // Tính toán lại các con số
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+    const shipping = 0; // Free shipping mặc định
+    let discountAmount = 0;
+    
+    if (req.session.voucher) {
+        const v = req.session.voucher;
+        if (v.type === 'percent') {
+            discountAmount = (subtotal * v.value) / 100;
+        } else {
+            discountAmount = v.value;
+        }
+        if (discountAmount > subtotal) discountAmount = subtotal;
+    }
+
+    const grandTotal = subtotal + shipping - discountAmount;
+
+    res.json({
+        success: true,
+        data: {
+            cart,
+            subtotal,
+            shipping,
+            discountAmount,
+            appliedVoucher: req.session.voucher,
+            grandTotal
+        }
+    });
+});
+
+
 // ========================= ADD TO CART =======================
 router.post('/cart/add', async function (req, res) {
     const cart = getCart(req);
