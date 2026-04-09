@@ -480,6 +480,7 @@ function preserveUser(req, additionalParams = {}) {
 
 // ========================= CART PAGE =========================
 router.get('/cart', async function (req, res) {
+    req.session.voucher = null; // Tự động reset voucher khi vào giỏ hàng
     const cart = getCart(req);
     const wishlist = getWishlist(req);
     const user = getUser(req);
