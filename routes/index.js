@@ -456,10 +456,20 @@ function preserveUser(req, additionalParams = {}) {
 }
 
 // ========================= CART PAGE =========================
-router.get('/cart', function (req, res) {
+router.get('/cart', async function (req, res) {
     const cart = getCart(req);
     const wishlist = getWishlist(req);
     const user = getUser(req);
+
+    // Refresh stock info for each item in cart
+    for (let item of cart) {
+        try {
+            const product = await Product.findById(item.id).select('quantity').lean();
+            if (product) {
+                item.stock = product.quantity;
+            }
+        } catch (e) { }
+    }
 
     let subtotal = 0;
     cart.forEach(item => subtotal += item.price * item.qty);
@@ -468,7 +478,7 @@ router.get('/cart', function (req, res) {
     const grandTotal = subtotal + shipping;
 
     res.render('home/cart', {
-        title: 'Your Cart',
+        title: 'Giỏ hàng của bạn',
         cart,
         subtotal,
         shipping,
@@ -478,7 +488,7 @@ router.get('/cart', function (req, res) {
 });
 
 // ========================= ADD TO CART =======================
-router.post('/cart/add', function (req, res) {
+router.post('/cart/add', async function (req, res) {
     const cart = getCart(req);
 
     const { id, name, price, image } = req.body;
@@ -488,18 +498,38 @@ router.post('/cart/add', function (req, res) {
         return res.redirect('/');
     }
 
-    const existing = cart.find(p => p.id === id);
+    try {
+        // Find product in DB to check stock
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại.' });
+        }
 
-    if (existing) {
-        existing.qty += qty;
-    } else {
-        cart.push({
-            id,
-            name,
-            price: parseFloat(price),
-            image: image || '',
-            qty
-        });
+        const availableStock = product.quantity;
+        const existing = cart.find(p => p.id === id);
+
+        if (existing) {
+            const potentialTotal = existing.qty + qty;
+            if (potentialTotal > availableStock) {
+                return res.status(400).json({ success: false, message: `Chỉ còn ${availableStock} sản phẩm trong kho.` });
+            }
+            existing.qty = potentialTotal;
+        } else {
+            if (qty > availableStock) {
+                return res.status(400).json({ success: false, message: `Chỉ còn ${availableStock} sản phẩm trong kho.` });
+            }
+            cart.push({
+                id,
+                name,
+                price: parseFloat(price),
+                image: image || '',
+                qty,
+                stock: availableStock
+            });
+        }
+    } catch (err) {
+        console.error('Add to cart error:', err);
+        return res.status(500).json({ success: false, message: 'Lỗi server.' });
     }
 
     // Lưu cart vào session
@@ -775,6 +805,15 @@ router.post('/checkout', async function (req, res) {
         });
 
         await newOrder.save();
+
+        // Update Product Inventory (Total quantity only)
+        for (let item of cart) {
+            try {
+                await Product.findByIdAndUpdate(item.id, { $inc: { quantity: -item.qty } });
+            } catch (invErr) {
+                console.error(`Inventory update error for product ${item.id}:`, invErr);
+            }
+        }
 
         // Update Voucher Used Count
         if (req.session.voucher && req.session.voucher._id) {
