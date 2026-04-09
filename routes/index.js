@@ -648,7 +648,16 @@ router.post('/cart/apply-voucher', async function (req, res) {
             return res.json({ success: false, message: 'Mã giảm giá không khả dụng.' });
         }
         const now = new Date();
-        if (now < voucher.startDate || now > voucher.endDate) {
+        // So sánh theo ngày, bỏ qua giờ để tránh lệch múi giờ UTC vs UTC+7
+        const startOfStartDate = new Date(voucher.startDate);
+        startOfStartDate.setHours(0, 0, 0, 0);
+        const endOfEndDate = new Date(voucher.endDate);
+        endOfEndDate.setHours(23, 59, 59, 999);
+
+        if (now < startOfStartDate) {
+            return res.json({ success: false, message: 'Mã giảm giá chưa đến ngày sử dụng.' });
+        }
+        if (now > endOfEndDate) {
             return res.json({ success: false, message: 'Mã giảm giá đã hết hạn.' });
         }
         if (voucher.maxUsage && voucher.usedCount >= voucher.maxUsage) {

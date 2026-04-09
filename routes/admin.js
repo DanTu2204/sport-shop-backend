@@ -1005,7 +1005,19 @@ router.get('/voucher/add', requireAdmin, function (req, res) {
 
 router.post('/voucher/add', requireAdmin, async function (req, res) {
     try {
-        await Voucher.create(req.body);
+        const data = { ...req.body };
+        // Chuẩn hóa ngày: startDate từ đầu ngày, endDate đến cuối ngày (tránh lệch timezone)
+        if (data.startDate) {
+            const d = new Date(data.startDate);
+            d.setHours(0, 0, 0, 0);
+            data.startDate = d;
+        }
+        if (data.endDate) {
+            const d = new Date(data.endDate);
+            d.setHours(23, 59, 59, 999);
+            data.endDate = d;
+        }
+        await Voucher.create(data);
         res.redirect('/admin/voucher');
     } catch (err) {
         console.error('Add voucher error:', err);
@@ -1046,7 +1058,19 @@ router.get('/voucher/edit/:id', requireAdmin, async function (req, res) {
 
 router.post('/voucher/edit/:id', requireAdmin, async function (req, res) {
     try {
-        await Voucher.findByIdAndUpdate(req.params.id, req.body);
+        const data = { ...req.body };
+        // Chuẩn hóa ngày
+        if (data.startDate) {
+            const d = new Date(data.startDate);
+            d.setHours(0, 0, 0, 0);
+            data.startDate = d;
+        }
+        if (data.endDate) {
+            const d = new Date(data.endDate);
+            d.setHours(23, 59, 59, 999);
+            data.endDate = d;
+        }
+        await Voucher.findByIdAndUpdate(req.params.id, data);
         res.redirect('/admin/voucher');
     } catch (err) {
         console.error('Update voucher error:', err);
