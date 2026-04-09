@@ -154,7 +154,11 @@ app.engine('hbs', engine({
     },
     formatDate: function (date) {
       if (!date) return '';
-      return new Date(date).toLocaleDateString('vi-VN');
+      var d = new Date(date);
+      var day = ('0' + d.getDate()).slice(-2);
+      var month = ('0' + (d.getMonth() + 1)).slice(-2);
+      var year = d.getFullYear();
+      return `${day}/${month}/${year}`;
     }
   }
 }));

@@ -306,6 +306,14 @@ router.get('/', requireAdmin, async function (req, res) {
             Order.find().sort({ createdAt: -1 }).limit(5).populate('user').lean()
         ]);
 
+        const recentOrdersFormatted = recentOrders.map(order => {
+            const date = new Date(order.createdAt);
+            return {
+                ...order,
+                createdAtFormatted: `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
+            };
+        });
+
         res.render('admin/index', {
             title: 'Admin Dashboard',
             isDashboard: true,
@@ -316,7 +324,7 @@ router.get('/', requireAdmin, async function (req, res) {
                 products: totalProducts,
                 customers: totalCustomers
             },
-            recentOrders: recentOrders
+            recentOrders: recentOrdersFormatted
         });
     } catch (err) {
         console.error('Dashboard stats error:', err);
@@ -718,11 +726,18 @@ router.get('/product/delete/:id', requireAdmin, async function (req, res) {
 router.get('/orders', requireAdmin, async function (req, res) {
     try {
         const orders = await Order.find().sort({ createdAt: -1 });
+        const ordersFormatted = orders.map(order => {
+            const doc = order.toJSON();
+            const date = new Date(doc.createdAt);
+            doc.createdAtFormatted = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+            return doc;
+        });
+
         res.render('admin/orders/orders-list', {
             title: 'Orders Management',
             isOrders: true,
             adminUser: res.locals.adminUser,
-            orders: orders.map(order => order.toJSON()) // Ensure it's plain JS object
+            orders: ordersFormatted
         });
     } catch (err) {
         console.error('Get orders error:', err);
@@ -764,8 +779,11 @@ router.get('/customers', requireAdmin, async function (req, res) {
         // Enhance users with order count
         const customers = await Promise.all(users.map(async (user) => {
             const orderCount = await Order.countDocuments({ user: user._id });
+            const doc = user.toJSON();
+            const date = new Date(doc.createdAt);
+            doc.createdAtFormatted = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
             return {
-                ...user.toJSON(),
+                ...doc,
                 orderCount: orderCount
             };
         }));
@@ -925,12 +943,16 @@ router.get('/voucher', requireAdmin, async function (req, res) {
             const end = new Date(doc.endDate);
             
             // Format dates
-            const formatDate = (d) => {
+            const formatDateDisplay = (d) => {
+                if (!d) return '';
                 const date = new Date(d);
-                return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
             };
-            doc.startDateFormatted = formatDate(doc.startDate);
-            doc.endDateFormatted = formatDate(doc.endDate);
+            doc.startDateFormatted = formatDateDisplay(doc.startDate);
+            doc.endDateFormatted = formatDateDisplay(doc.endDate);
 
             // Accumulate usedCount
             stats.usedTotal += (doc.usedCount || 0);
@@ -988,7 +1010,10 @@ router.get('/voucher/edit/:id', requireAdmin, async function (req, res) {
         const formatDate = (d) => {
             if (!d) return '';
             const date = new Date(d);
-            return date.toISOString().split('T')[0];
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
         };
 
         const voucherDoc = voucher.toJSON();

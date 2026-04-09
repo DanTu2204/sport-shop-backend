@@ -139,11 +139,20 @@ router.get('/profile', async function (req, res) {
             return res.redirect('/logout');
         }
 
+        const formatDate = (d) => {
+            if (!d) return '';
+            const date = new Date(d);
+            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        };
+
+        const ordersFormatted = orders.map(o => ({ ...o, createdAtFormatted: formatDate(o.createdAt) }));
+        const contactsFormatted = contacts.map(c => ({ ...c, createdAtFormatted: formatDate(c.createdAt) }));
+
         res.render('home/profile', {
             title: 'Tài khoản của tôi',
             user: user,
-            orders: orders,
-            contacts: contacts
+            orders: ordersFormatted,
+            contacts: contactsFormatted
         });
     } catch (err) {
         console.error('Get profile error:', err);
@@ -240,9 +249,16 @@ router.get('/orders', async function (req, res) {
         const userId = user.id || user._id;
         const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
         
+        const formatDate = (d) => {
+            if (!d) return '';
+            const date = new Date(d);
+            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        };
+        const ordersFormatted = orders.map(o => ({ ...o, createdAtFormatted: formatDate(o.createdAt) }));
+        
         res.render('home/orders', {
             title: 'Đơn hàng của tôi',
-            orders: orders,
+            orders: ordersFormatted,
             user: user
         });
     } catch (err) {
@@ -264,10 +280,17 @@ router.get('/orders/:id', async function (req, res) {
             return res.redirect('/orders');
         }
 
+        const formatDate = (d) => {
+            if (!d) return '';
+            const date = new Date(d);
+            return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+        };
+        const orderFormatted = { ...order, createdAtFormatted: formatDate(order.createdAt) };
+
         res.render('home/order-detail', {
             title: 'Chi tiết đơn hàng',
             user: user,
-            order: order
+            order: orderFormatted
         });
     } catch (err) {
         console.error('Get order detail error:', err);

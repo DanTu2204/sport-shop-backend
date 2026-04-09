@@ -31,6 +31,7 @@
                         <th>Email</th>
                         <th>Số điện thoại</th>
                         <th>Tổng đơn</th>
+                        <th>Ngày đăng ký</th>
                         <th>Trạng thái</th>
                         <th>Hành động</th>
                     </tr>
@@ -43,6 +44,7 @@
                         <td>{{this.email}}</td>
                         <td>N/A</td> 
                         <td><span class="badge bg-light text-dark border">{{this.orderCount}} đơn</span></td>
+                        <td>{{this.createdAtFormatted}}</td>
                         <td><span class="badge bg-success text-white">Hoạt động</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#customerDetail{{@index}}">
@@ -84,6 +86,10 @@
                     <tr>
                         <th>Tổng số đơn hàng:</th>
                         <td><span class="badge bg-primary">{{this.orderCount}} đơn hàng</span></td>
+                    </tr>
+                    <tr>
+                        <th>Ngày đăng ký:</th>
+                        <td>{{this.createdAtFormatted}}</td>
                     </tr>
                 </table>
             </div>

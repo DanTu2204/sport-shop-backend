@@ -30,7 +30,7 @@
                     {{#each orders}}
                     <tr>
                         <td class="align-middle">{{_id}}</td>
-                        <td class="align-middle">{{formatDate createdAt}}</td>
+                        <td class="align-middle">{{this.createdAtFormatted}}</td>
                         <td class="align-middle text-left">
                             <ul class="list-unstyled mb-0">
                                 {{#each items}}

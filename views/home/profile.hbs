@@ -117,7 +117,7 @@
                                 {{#each orders}}
                                 <tr>
                                     <td class="align-middle">{{_id}}</td>
-                                    <td class="align-middle">{{formatDate createdAt}}</td>
+                                    <td class="align-middle">{{this.createdAtFormatted}}</td>
                                     <td class="align-middle text-success font-weight-bold">
                                         {{formatCurrency totalPrice}}
                                     </td>

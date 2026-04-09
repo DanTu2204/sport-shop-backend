@@ -1,8 +1,9 @@
 <!-- Custom Styles for Badges -->
 <style>
-    .badge-percent { background-color: #fd7e14; color: white; }
-    .badge-fixed { background-color: #6610f2; color: white; }
-    .badge-usage { font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+    .badge-percent { background-color: #fd7e14; color: white; padding: 0.5em 0.8em; font-size: 0.85rem; }
+    .badge-fixed { background-color: #6610f2; color: white; padding: 0.5em 0.8em; font-size: 0.85rem; }
+    .badge-usage { font-family: 'Courier New', Courier, monospace; font-weight: bold; font-size: 0.9rem; padding: 0.5em 0.8em; }
+    .badge-status { padding: 0.5em 0.8em; font-size: 0.85rem; font-weight: 600; }
 </style>
 
 <!-- Header Section -->
@@ -131,16 +132,16 @@
                         </td>
                         <td>{{this.startDateFormatted}}</td>
                         <td>{{this.endDateFormatted}}</td>
-                        <td><span class="badge badge-light border badge-usage">{{this.usedCount}}/{{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</span></td>
+                        <td><span class="badge badge-secondary border badge-usage">{{this.usedCount}}/{{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</span></td>
                         <td>
                             {{#if_eq this.status 'active'}}
-                            <span class="badge badge-success">Hoạt động</span>
-                            {{/if_eq}}
-                            {{#if_eq this.status 'inactive'}}
-                            <span class="badge badge-secondary">Tạm dừng</span>
-                            {{/if_eq}}
-                            {{#if_eq this.status 'expired'}}
-                            <span class="badge badge-warning">Hết hạn</span>
+                            <span class="badge badge-success badge-status">Hoạt động</span>
+                            {{else}}
+                                {{#if_eq this.status 'expired'}}
+                                <span class="badge badge-danger badge-status">Hết hạn</span>
+                                {{else}}
+                                <span class="badge badge-secondary badge-status">Tạm dừng</span>
+                                {{/if_eq}}
                             {{/if_eq}}
                         </td>
                         <td>
