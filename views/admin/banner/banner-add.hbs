@@ -1,0 +1,102 @@
+<!-- Header Section -->
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fas fa-images text-primary mr-2"></i>Thêm banner mới</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/admin/banner" class="text-primary">Banner</a>
+                    </li>
+                    <li class="breadcrumb-item active">Thêm mới</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+        <h6 class="mb-0 text-dark">Thông tin banner</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/admin/banner/add" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label>Tiêu đề banner <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control" placeholder="VD: Khuyến mãi mùa hè" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Vị trí hiển thị <span class="text-danger">*</span></label>
+                    <select class="form-control" name="position" required>
+                        <option value="">Chọn vị trí</option>
+                        <option value="home-carousel">Trang chủ - Carousel</option>
+                        <option value="home-sidebar">Trang chủ - Sidebar</option>
+                        <option value="shop-top">Trang shop - Top</option>
+                        <option value="shop-sidebar">Trang shop - Sidebar</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Thứ tự hiển thị</label>
+                    <input type="number" name="order" class="form-control" placeholder="Số càng nhỏ càng hiển thị trước"
+                        value="1">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label>Hình ảnh <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" name="image" class="custom-file-input" id="bannerImage" accept="image/*"
+                            required>
+                        <label class="custom-file-label" for="bannerImage">Chọn hình ảnh</label>
+                    </div>
+                    <small class="form-text text-muted">Kích thước đề xuất: 1920x600px</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Link khi click (URL)</label>
+                    <input type="text" name="link" class="form-control" placeholder="https://example.com">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Mở trong tab mới</label>
+                    <select class="form-control" name="openInNewTab">
+                        <option value="0">Không</option>
+                        <option value="1">Có</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <input type="date" name="startDate" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input type="date" name="endDate" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Trạng thái</label>
+                    <select class="form-control" name="status">
+                        <option value="active">Đang hiển thị</option>
+                        <option value="inactive">Tạm dừng</option>
+                    </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label>Mô tả</label>
+                    <textarea class="form-control" name="description" rows="3" placeholder="Mô tả về banner"></textarea>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="/admin/banner" class="btn btn-secondary mr-2">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu banner</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Hiển thị tên file khi chọn
+    document.querySelector('.custom-file-input').addEventListener('change', function (e) {
+        const fileName = e.target.files[0]?.name || 'Chọn hình ảnh';
+        e.target.nextElementSibling.textContent = fileName;
+    });
+</script>

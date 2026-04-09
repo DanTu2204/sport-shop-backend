@@ -1,0 +1,150 @@
+<!-- Breadcrumbs-->
+<ol class="breadcrumb bg-light px-3 py-2 rounded">
+    <li class="breadcrumb-item">
+        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+    </li>
+    <li class="breadcrumb-item active">Overview</li>
+</ol>
+
+<!-- Icon Cards-->
+<div class="row">
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">New Orders</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.orders}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+            <a class="card-footer text-white clearfix small z-1 bg-primary" href="/admin/orders">
+                <span class="float-left">View Details</span>
+                <span class="float-right">
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Categories</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.categories}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+            <a class="card-footer text-white clearfix small z-1 bg-warning" href="/admin/category">
+                <span class="float-left">View Details</span>
+                <span class="float-right">
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Products</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.products}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-bag fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+            <a class="card-footer text-white clearfix small z-1 bg-success" href="/admin/product">
+                <span class="float-left">View Details</span>
+                <span class="float-right">
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Customers</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.customers}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+            <a class="card-footer text-white clearfix small z-1 bg-danger" href="/admin/customers">
+                <span class="float-left">View Details</span>
+                <span class="float-right">
+                    <i class="fa fa-angle-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Recent Orders Table -->
+<div class="card mb-3 shadow">
+    <div class="card-header bg-primary text-white">
+        <i class="fa fa-table"></i> Recent Orders
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Product</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {{#each recentOrders}}
+                    <tr>
+                        <td>#{{this._id}}</td> <!-- Display shortened ID or formatted if custom ID exists -->
+                        <td>{{#if this.user}}{{this.user.name}}{{else}}{{this.contact.firstName}}
+                            {{this.contact.lastName}}{{/if}}</td>
+                        <td>{{this.items.0.name}} {{#if (gt this.items.length 1)}}<small class="text-muted">(+{{subtract
+                                this.items.length 1}} others)</small>{{/if}}</td>
+                        <td>{{formatCurrency this.totalPrice}}</td>
+                        <td>
+                            {{#if (eq this.status 'completed')}}
+                            <span class="badge badge-success">Completed</span>
+                            {{else if (eq this.status 'pending')}}
+                            <span class="badge badge-warning">Pending</span>
+                            {{else if (eq this.status 'shipping')}}
+                            <span class="badge badge-primary">Shipping</span>
+                            {{else}}
+                            <span class="badge badge-secondary">{{this.status}}</span>
+                            {{/if}}
+                        </td>
+                        <td>{{formatDateValue this.createdAt}}</td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="text-center">No orders found</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer small text-muted">Updated today at 11:59 PM</div>
+</div>

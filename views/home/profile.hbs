@@ -1,0 +1,160 @@
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="/">Trang chủ</a>
+                <span class="breadcrumb-item active">Tài khoản của tôi</span>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-5">
+    <div class="row px-xl-5">
+        
+        <!-- Cột điều hướng bên trái (Avatar) -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="bg-light p-4 text-center rounded shadow-sm">
+                <div class="position-relative d-inline-block mb-3">
+                    <img src="{{#if user.image}}{{user.image}}{{else}}/img/user.jpg{{/if}}" id="userAvatarPreview" class="rounded-circle border" style="width: 150px; height: 150px; object-fit: cover;" alt="User Avatar">
+                    <!-- Nút thay đổi (sẽ kết nối tới form ở bên phải) -->
+                    <label for="profileImage" class="position-absolute bg-primary text-white rounded-circle p-2" style="bottom: 0; right: 10px; cursor: pointer;" title="Đổi ảnh đại diện">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                </div>
+                <h5 class="font-weight-semi-bold">{{user.name}}</h5>
+                <p class="text-muted">{{user.email}}</p>
+
+                <!-- Navigation menu (Bootstrap Nav-pills) -->
+                <div class="nav flex-column nav-pills text-left mt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true"><i class="fas fa-user mr-2"></i> Hồ sơ của tôi</a>
+                    
+                    <a class="nav-link" id="v-pills-password-tab" data-toggle="pill" href="#v-pills-password" role="tab" aria-controls="v-pills-password" aria-selected="false"><i class="fas fa-key mr-2"></i> Đổi mật khẩu</a>
+
+                    <a class="nav-link" id="v-pills-orders-tab" data-toggle="pill" href="#v-pills-orders" role="tab" aria-controls="v-pills-orders" aria-selected="false"><i class="fas fa-shopping-bag mr-2"></i> Đơn hàng của tôi</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nội dung bên phải -->
+        <div class="col-lg-9 col-md-8">
+            <div class="tab-content bg-light p-4 rounded shadow-sm" id="v-pills-tabContent">
+                
+                <!-- Tab 1: Hồ sơ -->
+                <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                    <h4 class="mb-4">Thông tin cá nhân</h4>
+                    <form action="/profile/update" method="POST" enctype="multipart/form-data">
+                        <input type="file" id="profileImage" name="image" style="display: none;" onchange="document.getElementById('userAvatarPreview').src = window.URL.createObjectURL(this.files[0])">
+                        
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Họ và Tên</label>
+                                <input class="form-control" type="text" name="name" value="{{user.name}}" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Email (Không thể thay đổi)</label>
+                                <input class="form-control" type="email" value="{{user.email}}" readonly>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Số điện thoại</label>
+                                <input class="form-control" type="text" name="phone" value="{{user.phone}}" placeholder="+84 123 456 789">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Ngày sinh</label>
+                                <input class="form-control" type="date" name="birthday" value="{{formatDateValue user.birthday}}">
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label>Địa chỉ</label>
+                                <input class="form-control" type="text" name="address" value="{{user.address}}" placeholder="123 Nguyễn Trãi, Quận 5...">
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <button type="submit" class="btn btn-primary mt-3">Cập nhật thông tin</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab 2: Đổi mật khẩu -->
+                <div class="tab-pane fade" id="v-pills-password" role="tabpanel" aria-labelledby="v-pills-password-tab">
+                    <h4 class="mb-4">Đổi mật khẩu</h4>
+                    <form action="/profile/password" method="POST">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label>Mật khẩu hiện tại</label>
+                                <input class="form-control" type="password" name="currentPassword" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Mật khẩu mới</label>
+                                <input class="form-control" type="password" name="newPassword" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Xác nhận mật khẩu mới</label>
+                                <input class="form-control" type="password" name="confirmPassword" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <button type="submit" class="btn btn-primary mt-3">Lưu mật khẩu mới</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tab 3: Đơn hàng -->
+                <div class="tab-pane fade" id="v-pills-orders" role="tabpanel" aria-labelledby="v-pills-orders-tab">
+                    <h4 class="mb-4">Lịch sử Đơn hàng</h4>
+                    <div class="table-responsive">
+                        {{#if orders}}
+                        <table class="table table-bordered table-hover text-center mb-0">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Chi tiết</th>
+                                </tr>
+                            </thead>
+                            <tbody class="align-middle">
+                                {{#each orders}}
+                                <tr>
+                                    <td class="align-middle">{{_id}}</td>
+                                    <td class="align-middle">{{formatDate createdAt}}</td>
+                                    <td class="align-middle text-success font-weight-bold">
+                                        {{formatCurrency totalPrice}}
+                                    </td>
+                                    <td class="align-middle">
+                                        {{#if_eq status 'pending'}}
+                                        <span class="badge badge-warning p-2">Đang xử lý</span>
+                                        {{/if_eq}}
+                                        {{#if_eq status 'confirmed'}}
+                                        <span class="badge badge-info p-2">Đã xác nhận</span>
+                                        {{/if_eq}}
+                                        {{#if_eq status 'shipping'}}
+                                        <span class="badge badge-primary p-2">Đang giao</span>
+                                        {{/if_eq}}
+                                        {{#if_eq status 'completed'}}
+                                        <span class="badge badge-success p-2">Hoàn thành</span>
+                                        {{/if_eq}}
+                                        {{#if_eq status 'cancelled'}}
+                                        <span class="badge badge-danger p-2">Đã hủy</span>
+                                        {{/if_eq}}
+                                    </td>
+                                    <td class="align-middle">
+                                        <a href="/orders/{{_id}}" class="btn btn-sm btn-outline-dark">Chi tiết</a>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                        {{else}}
+                        <div class="text-center py-5 border bg-white rounded">
+                            <h5 class="text-muted"><i class="fas fa-box-open fa-2x mb-3 d-block text-gray"></i>Bạn chưa có đơn hàng nào.</h5>
+                            <a href="/shop" class="btn btn-primary mt-3">Mua sắm ngay</a>
+                        </div>
+                        {{/if}}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

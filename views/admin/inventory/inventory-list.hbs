@@ -1,0 +1,114 @@
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fa fa-warehouse text-primary mr-2"></i>Tồn kho & Nhập hàng</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Tồn kho</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="/admin/inventory/import" class="btn btn-primary btn-lg">
+            <i class="fa fa-plus-circle mr-2"></i>Nhập hàng mới
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 text-dark">Tổng quan tồn kho</h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="h4 text-primary">{{stats.totalProducts}}</div>
+                <small class="text-muted">Tổng sản phẩm</small>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="h4 text-success">{{stats.inStock}}</div>
+                <small class="text-muted">Còn hàng</small>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="h4 text-warning">{{stats.lowStock}}</div>
+                <small class="text-muted">Sắp hết hàng</small>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="h4 text-danger">{{stats.outOfStock}}</div>
+                <small class="text-muted">Hết hàng</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <i class="fa fa-boxes mr-2"></i>Chi tiết tồn kho
+    </div>
+    <div class="card-body">
+        <form action="/admin/inventory" method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <input type="text" class="form-control" name="search" placeholder="Tìm theo tên hoặc mã SP..."
+                        value="{{filter.search}}">
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select form-control" name="category">
+                        <option value="">-- Tất cả danh mục --</option>
+                        {{#each categories}}
+                        <option value="{{this.name}}" {{#if (eq ../filter.category this.name)}}selected{{/if}}>
+                            {{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <select class="form-select form-control" name="status">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="in" {{#if (eq filter.status 'in' )}}selected{{/if}}>Còn hàng (>10)</option>
+                        <option value="low" {{#if (eq filter.status 'low' )}}selected{{/if}}>Sắp hết (1-10)</option>
+                        <option value="out" {{#if (eq filter.status 'out' )}}selected{{/if}}>Hết hàng (0)</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="fa fa-filter"></i> Lọc</button>
+                    <!-- <a href="/admin/inventory" class="btn btn-outline-secondary w-100 mt-1">Đặt lại</a> -->
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="thead-light">
+                    <tr class="text-center">
+                        <th>Mã SP</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Danh mục</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each products}}
+                    <tr class="text-center">
+                        <td>{{this.code}}</td>
+                        <td>{{this.name}}</td>
+                        <td>{{this.category}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td><span class="badge {{this.stockClass}}">{{this.stockStatus}}</span></td>
+                        <td>
+                            <a href="/admin/product/edit/{{this._id}}" class="btn btn-sm btn-outline-primary">Cập
+                                nhật</a>
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Chưa có sản phẩm nào trong kho</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

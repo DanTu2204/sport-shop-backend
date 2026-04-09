@@ -1,0 +1,142 @@
+<!-- Header Section -->
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fas fa-images text-primary mr-2"></i>Quản lý Banner quảng cáo</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Banner</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="/admin/banner/add" class="btn btn-primary btn-lg">
+            <i class="fa fa-plus-circle mr-2"></i>Thêm banner mới
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng banner</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.totalBanners}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-images fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đang hiển thị</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.activeBanners}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-eye fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tạm dừng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.inactiveBanners}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-pause-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Hết hạn</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.expiredBanners}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Banners Grid -->
+<div class="row">
+    {{#each banners}}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+            <img src="{{this.image}}" class="card-img-top" alt="{{this.title}}"
+                style="height: 200px; object-fit: cover;">
+            <div class="card-body">
+                <h6 class="card-title">{{this.title}}</h6>
+                <p class="text-muted small mb-2">Vị trí: {{this.position}}</p>
+                <p class="text-muted small mb-2">Thứ tự: {{this.order}}</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge {{this.statusClass}}">{{this.statusDisplay}}</span>
+                    <small class="text-muted">{{this.period}}</small>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <div class="btn-group w-100">
+                    <a href="/admin/banner/edit/{{this._id}}" class="btn btn-outline-warning btn-sm">Sửa</a>
+
+                    <form action="/admin/banner/toggle-status" method="POST" class="w-100">
+                        <input type="hidden" name="id" value="{{this._id}}">
+                        {{#if (eq this.status 'active')}}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100 rounded-0"
+                            style="border-radius: 0 !important;">Tạm dừng</button>
+                        {{else}}
+                        <button type="submit" class="btn btn-outline-success btn-sm w-100 rounded-0"
+                            style="border-radius: 0 !important;">Kích hoạt</button>
+                        {{/if}}
+                    </form>
+
+                    <form action="/admin/banner/delete" method="POST" class="w-100"
+                        onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner này?');">
+                        <input type="hidden" name="id" value="{{this._id}}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 rounded-0"
+                            style="border-radius: 0 0.2rem 0.2rem 0 !important;">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+
+    <!-- Add New Banner Card -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card border-dashed shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center py-5">
+                <i class="fa fa-plus-circle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">Thêm banner mới</h5>
+                <p class="text-muted mb-3">Tạo banner quảng cáo mới</p>
+                <a href="/admin/banner/add" class="btn btn-primary">
+                    <i class="fa fa-plus mr-2"></i>Thêm banner
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

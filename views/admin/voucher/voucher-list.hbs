@@ -1,0 +1,153 @@
+<!-- Header Section -->
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fas fa-ticket-alt text-primary mr-2"></i>Quản lý Mã giảm giá</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Mã giảm giá</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="/admin/voucher/add" class="btn btn-primary btn-lg">
+            <i class="fa fa-plus-circle mr-2"></i>Thêm mã giảm giá
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng mã giảm giá</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">15</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-ticket-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Đang hoạt động</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">12</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Đã sử dụng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">245</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Đã hết hạn</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">3</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vouchers Table -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+        <h6 class="mb-0 text-dark">Danh sách mã giảm giá</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Mã giảm giá</th>
+                        <th>Loại</th>
+                        <th>Giá trị</th>
+                        <th>Ngày bắt đầu</th>
+                        <th>Ngày kết thúc</th>
+                        <th>Đã sử dụng</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each vouchers}}
+                    <tr>
+                        <td>{{@index}}</td>
+                        <td><strong>{{this.code}}</strong></td>
+                        <td>
+                            {{#if_eq this.type 'percent'}}
+                            <span class="badge badge-info">Phần trăm</span>
+                            {{else}}
+                            <span class="badge badge-primary">Cố định</span>
+                            {{/if_eq}}
+                        </td>
+                        <td>
+                            {{#if_eq this.type 'percent'}}
+                            {{this.value}}%
+                            {{else}}
+                            {{formatCurrency this.value}}
+                            {{/if_eq}}
+                        </td>
+                        <td>{{this.startDateFormatted}}</td>
+                        <td>{{this.endDateFormatted}}</td>
+                        <td>{{this.usedCount}}/{{#if this.maxUsage}}{{this.maxUsage}}{{else}}∞{{/if}}</td>
+                        <td>
+                            {{#if_eq this.status 'active'}}
+                            <span class="badge badge-success">Hoạt động</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'inactive'}}
+                            <span class="badge badge-secondary">Tạm dừng</span>
+                            {{/if_eq}}
+                            {{#if_eq this.status 'expired'}}
+                            <span class="badge badge-warning">Hết hạn</span>
+                            {{/if_eq}}
+                        </td>
+                        <td>
+                            <a href="/admin/voucher/edit/{{this._id}}" class="btn btn-warning btn-sm me-2">Sửa</a>
+                            <form action="/admin/voucher/delete" method="POST" class="d-inline"
+                                onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
+                                <input type="hidden" name="id" value="{{this._id}}">
+                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+<!-- Header Section -->
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fas fa-ticket-alt text-primary mr-2"></i>Thêm mã giảm giá mới</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/admin/voucher" class="text-primary">Mã giảm giá</a>
+                    </li>
+                    <li class="breadcrumb-item active">Thêm mới</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Form -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+        <h6 class="mb-0 text-dark">Thông tin mã giảm giá</h6>
+    </div>
+    <div class="card-body">
+        <form action="/admin/voucher/add" method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label>Mã giảm giá <span class="text-danger">*</span></label>
+                    <input type="text" name="code" class="form-control" placeholder="VD: WELCOME10" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Loại giảm giá <span class="text-danger">*</span></label>
+                    <select name="type" class="form-control" required>
+                        <option value="">Chọn loại</option>
+                        <option value="percent">Phần trăm (%)</option>
+                        <option value="fixed">Số tiền cố định (đ)</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Giá trị giảm <span class="text-danger">*</span></label>
+                    <input type="number" name="value" class="form-control" placeholder="VD: 10 hoặc 50000" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Số lượng tối đa</label>
+                    <input type="number" name="maxUsage" class="form-control" placeholder="Để trống = không giới hạn">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <input type="date" name="startDate" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input type="date" name="endDate" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Giá trị đơn hàng tối thiểu (đ)</label>
+                    <input type="number" name="minOrderValue" class="form-control" placeholder="0 = không giới hạn">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label>Trạng thái</label>
+                    <select name="status" class="form-control">
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Tạm dừng</option>
+                    </select>
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label>Mô tả</label>
+                    <textarea name="description" class="form-control" rows="3"
+                        placeholder="Mô tả về mã giảm giá"></textarea>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href="/admin/voucher" class="btn btn-secondary mr-2">Hủy</a>
+                <button type="submit" class="btn btn-primary">Lưu mã giảm giá</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="container-fluid pt-5">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+        <span class="bg-secondary pr-3">Sản phẩm yêu thích</span>
+    </h2>
+
+    {{#if wishlist.length}}
+    <div class="row px-xl-5">
+        {{#each wishlist}}
+        <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+            <div class="product-item bg-light mb-4">
+                <div class="product-img position-relative overflow-hidden">
+                    <img class="img-fluid w-100" src="{{this.image}}" onerror="this.src='/img/product-1.jpg'" alt="{{this.name}}">
+                    <div class="product-action">
+                        <form method="post" action="/cart/add" class="d-inline">
+                            <input type="hidden" name="id" value="{{this.id}}">
+                            <input type="hidden" name="name" value="{{this.name}}">
+                            <input type="hidden" name="price" value="{{this.price}}">
+                            <input type="hidden" name="image" value="{{this.image}}">
+                            <button type="submit" class="btn btn-outline-dark btn-square" title="Thêm vào giỏ"><i
+                                    class="fa fa-shopping-cart"></i></button>
+                        </form>
+                        <a class="btn btn-outline-dark btn-square" href="/wishlist?remove={{this.id}}" title="Xóa khỏi yêu thích"><i
+                                class="fas fa-heart text-danger"></i></a>
+                        <a class="btn btn-outline-dark btn-square" href="/detail?id={{this.id}}" title="Xem chi tiết"
+                            style="z-index: 100; position: relative;"><i class="fa fa-search"></i></a>
+                    </div>
+                </div>
+                <div class="text-center py-4">
+                    <a class="h6 text-decoration-none text-truncate" href="/detail?id={{this.id}}" style="display: block; padding: 0 10px;">{{this.name}}</a>
+                    <div class="d-flex align-items-center justify-content-center mt-2">
+                        <h5>{{formatCurrency this.price}}</h5>
+                        {{#if this.oldPrice}}
+                        <h6 class="text-muted ml-2"><del>{{formatCurrency this.oldPrice}}</del></h6>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="row px-xl-5">
+        <div class="col-12 text-center py-5">
+            <i class="far fa-heart fa-5x text-muted mb-3"></i>
+            <p class="text-muted">Bạn chưa có sản phẩm yêu thích nào.</p>
+            <a href="/shop" class="btn btn-primary">Tiếp tục mua sắm</a>
+        </div>
+    </div>
+    {{/if}}
+</div>

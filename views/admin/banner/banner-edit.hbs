@@ -1,0 +1,90 @@
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Sửa Banner</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thông tin banner</h6>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/admin/banner/edit/{{banner._id}}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>Tiêu đề banner <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control" value="{{banner.title}}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Vị trí hiển thị <span class="text-danger">*</span></label>
+                            <select class="form-control" name="position" required>
+                                <option value="home-carousel" {{#if (eq banner.position 'home-carousel'
+                                    )}}selected{{/if}}>Trang chủ - Carousel</option>
+                                <option value="home-sidebar" {{#if (eq banner.position 'home-sidebar'
+                                    )}}selected{{/if}}>Trang chủ - Sidebar</option>
+                                <option value="shop-top" {{#if (eq banner.position 'shop-top' )}}selected{{/if}}>Trang
+                                    shop - Top</option>
+                                <option value="shop-sidebar" {{#if (eq banner.position 'shop-sidebar'
+                                    )}}selected{{/if}}>Trang shop - Sidebar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Thứ tự hiển thị</label>
+                            <input type="number" name="order" class="form-control" value="{{banner.order}}">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label>Hình ảnh hiện tại</label>
+                            <div class="mb-2">
+                                <img src="{{banner.image}}" style="height: 100px;">
+                            </div>
+                            <label>Thay đổi hình ảnh (để trống nếu không đổi)</label>
+                            <div class="custom-file">
+                                <input type="file" name="image" class="custom-file-input" id="bannerImage"
+                                    accept="image/*">
+                                <label class="custom-file-label" for="bannerImage">Chọn hình ảnh mới</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Link khi click (URL)</label>
+                            <input type="text" name="link" class="form-control" value="{{banner.link}}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Mở trong tab mới</label>
+                            <select class="form-control" name="openInNewTab">
+                                <option value="0" {{#unless banner.openInNewTab}}selected{{/unless}}>Không</option>
+                                <option value="1" {{#if banner.openInNewTab}}selected{{/if}}>Có</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Ngày bắt đầu <span class="text-danger">*</span></label>
+                            <input type="date" name="startDate" class="form-control" value="{{banner.startDateValue}}"
+                                required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Ngày kết thúc <span class="text-danger">*</span></label>
+                            <input type="date" name="endDate" class="form-control" value="{{banner.endDateValue}}"
+                                required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Trạng thái</label>
+                            <select class="form-control" name="status">
+                                <option value="active" {{#if (eq banner.status 'active' )}}selected{{/if}}>Đang hiển thị
+                                </option>
+                                <option value="inactive" {{#if (eq banner.status 'inactive' )}}selected{{/if}}>Tạm dừng
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label>Mô tả</label>
+                            <textarea class="form-control" name="description" rows="3">{{banner.description}}</textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <a href="/admin/banner" class="btn btn-secondary mr-2">Hủy</a>
+                        <button type="submit" class="btn btn-primary">Cập nhật banner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

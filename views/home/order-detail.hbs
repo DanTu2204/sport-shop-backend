@@ -1,0 +1,178 @@
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-12">
+            <nav class="breadcrumb bg-light mb-30">
+                <a class="breadcrumb-item text-dark" href="/">Trang chủ</a>
+                <a class="breadcrumb-item text-dark" href="/orders">Đơn hàng của tôi</a>
+                <span class="breadcrumb-item active">Chi tiết đơn hàng #{{order._id}}</span>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row px-xl-5">
+        <div class="col-lg-8">
+            <div class="card border-0 mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0 p-2">Thông tin đơn hàng</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Mã đơn hàng:</h6>
+                        <p>{{order._id}}</p>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Ngày đặt:</h6>
+                        <p>{{formatDate order.createdAt}}</p>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Trạng thái:</h6>
+                        <p>
+                            {{#if_eq order.status 'pending'}}<span class="text-warning font-weight-bold">Đang xử
+                                lý</span>{{/if_eq}}
+                            {{#if_eq order.status 'confirmed'}}<span class="text-info font-weight-bold">Đã xác
+                                nhận</span>{{/if_eq}}
+                            {{#if_eq order.status 'shipping'}}<span class="text-primary font-weight-bold">Đang giao
+                                hàng</span>{{/if_eq}}
+                            {{#if_eq order.status 'completed'}}<span class="text-success font-weight-bold">Hoàn
+                                thành</span>{{/if_eq}}
+                            {{#if_eq order.status 'cancelled'}}<span class="text-danger font-weight-bold">Đã
+                                hủy</span>{{/if_eq}}
+                        </p>
+                    </div>
+
+                    {{!-- Confirm Received Button --}}
+                    {{#if (or (eq order.status 'shipping') (eq order.status 'confirmed'))}}
+                    <div class="alert alert-info d-flex justify-content-between align-items-center">
+                        <span>Bạn đã nhận được hàng chưa?</span>
+                        <form action="/orders/{{order._id}}/confirm" method="POST" class="m-0">
+                            <button type="submit" class="btn btn-success font-weight-bold">Đã nhận được hàng</button>
+                        </form>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+
+            <div class="card border-0 mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0 p-2">Sản phẩm</h4>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table mb-0">
+                        <tbody>
+                            {{#each order.items}}
+                            <tr>
+                                <td style="width: 100px;">
+                                    <img src="{{this.image}}" alt="{{this.name}}" class="img-fluid" style="width: 80px;"
+                                        onerror="this.src='/img/product-1.jpg'">
+                                </td>
+                                <td class="align-middle">
+                                    <a href="/detail?id={{this.productId}}"
+                                        class="h6 text-decoration-none">{{this.name}}</a>
+                                    <br>
+                                    <small>{{formatCurrency this.price}} x {{this.quantity}}</small>
+                                </td>
+                                <td class="align-middle text-right">
+                                    {{#if_eq ../order.status 'completed'}}
+                                    <button class="btn btn-sm btn-outline-warning" data-toggle="modal"
+                                        data-target="#reviewModal-{{this.productId}}">
+                                        <i class="fa fa-star"></i> Đánh giá
+                                    </button>
+
+                                    <!-- Review Modal -->
+                                    <div class="modal fade text-left" id="reviewModal-{{this.productId}}" tabindex="-1"
+                                        role="dialog">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Đánh giá sản phẩm</h5>
+                                                    <button type="button" class="close" data-dismiss="modal">
+                                                        <span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form action="/orders/{{../order._id}}/review/{{this.productId}}"
+                                                    method="POST">
+                                                    <div class="modal-body">
+                                                        <h6 class="mb-3">{{this.name}}</h6>
+                                                        <div class="form-group">
+                                                            <label>Chọn số sao</label>
+                                                            <select class="form-control" name="stars">
+                                                                <option value="5">5 Sao (Tuyệt vời)</option>
+                                                                <option value="4">4 Sao (Tốt)</option>
+                                                                <option value="3">3 Sao (Bình thường)</option>
+                                                                <option value="2">2 Sao (Tệ)</option>
+                                                                <option value="1">1 Sao (Rất tệ)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Nhận xét của bạn</label>
+                                                            <textarea class="form-control" name="comment" rows="3"
+                                                                placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Đóng</button>
+                                                        <button type="submit" class="btn btn-primary">Gửi đánh
+                                                            giá</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{/if_eq}}
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0 p-2">Tổng quan thanh toán</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Tạm tính</h6>
+                        <h6>{{formatCurrency order.subtotal}}</h6>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6 class="font-weight-medium">Phí vận chuyển</h6>
+                        <h6 class="font-weight-medium">{{formatCurrency order.shipping}}</h6>
+                    </div>
+                    {{#if order.discount}}
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6 class="font-weight-medium text-success">Giảm giá</h6>
+                        <h6 class="font-weight-medium text-success">-{{formatCurrency order.discount}}</h6>
+                    </div>
+                    {{/if}}
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <div class="d-flex justify-content-between mt-2">
+                        <h5 class="font-weight-bold">Tổng cộng</h5>
+                        <h5 class="font-weight-bold">{{formatCurrency order.totalPrice}}</h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0 p-2">Thông tin giao hàng</h4>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Người nhận:</strong> {{order.contact.firstName}} {{order.contact.lastName}}
+                    </p>
+                    <p class="mb-1"><strong>Điện thoại:</strong> {{order.contact.phone}}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{order.contact.email}}</p>
+                    <p class="mb-0"><strong>Địa chỉ:</strong> {{order.contact.address}}, {{order.contact.district}},
+                        {{order.contact.city}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

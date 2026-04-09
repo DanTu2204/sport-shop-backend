@@ -1,0 +1,113 @@
+<!-- Contact Start -->
+<div class="container-fluid">
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+        <span class="bg-secondary pr-3">Liên hệ với chúng tôi</span>
+    </h2>
+
+    <div class="row px-xl-5">
+
+        <!-- Form liên hệ -->
+        <div class="col-lg-7 mb-5">
+            <div class="contact-form bg-light p-30">
+                <div id="success"></div>
+
+                {{#if contactMessage}}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{contactMessage}}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {{/if}}
+
+                <form name="sentMessage" id="contactForm" method="post" action="/contact" novalidate="novalidate">
+                    <!-- Họ tên -->
+                    <div class="control-group mb-3">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Họ và tên"
+                            required="required" data-validation-required-message="Vui lòng nhập họ và tên của bạn" />
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="control-group mb-3">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Email"
+                            required="required" data-validation-required-message="Vui lòng nhập email của bạn" />
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <!-- Chủ đề -->
+                    <div class="control-group mb-3">
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="Chủ đề"
+                            required="required" data-validation-required-message="Vui lòng nhập chủ đề" />
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <!-- Tin nhắn -->
+                    <div class="control-group mb-3">
+                        <textarea class="form-control" rows="8" id="message" name="message"
+                            placeholder="Nội dung tin nhắn" required="required"
+                            data-validation-required-message="Vui lòng nhập nội dung tin nhắn"></textarea>
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-primary py-2 px-4" type="submit" id="sendMessageButton">
+                            Gửi tin nhắn
+                        </button>
+                    </div>
+                </form>
+                <script>
+                    // Xử lý form validation
+                    document.getElementById('contactForm').addEventListener('submit', function (e) {
+                        const name = document.getElementById('name').value.trim();
+                        const email = document.getElementById('email').value.trim();
+                        const subject = document.getElementById('subject').value.trim();
+                        const message = document.getElementById('message').value.trim();
+
+                        if (!name || !email || !subject || !message) {
+                            e.preventDefault();
+                            alert('Vui lòng điền đầy đủ thông tin!');
+                            return false;
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- Google Map & Thông tin liên hệ -->
+        <div class="col-lg-5 mb-5">
+
+            <!-- Google map -->
+            <div class="bg-light p-30 mb-30">
+                <iframe style="width: 100%; height: 250px;"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.661507152386!2d106.66413947451769!3d10.761278259427872!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752ecabf4213ef%3A0x4c07a3a9c4e41bb2!2zVMO0biBUaOG7iywgUXXhuq1uIDQsIFRo4bqjbyDEkOG7qWMgUXXhuq1uIE5hbSBI4buZaSwgUXXhuq1uIDUsIFRow6BuaCBwaOG7kSBI4buTIENow60sIFZpZXRuYW0!5e0!3m2!1svi!2s!4v1705831522000!5m2!1svi!2s"
+                    frameborder="0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+            </div>
+
+            <!-- Thông tin -->
+            <div class="bg-light p-30 mb-3">
+                <p class="mb-2">
+                    <i class="fa fa-map-marker-alt text-primary mr-3"></i>
+                    123 Nguyễn Trãi, Quận 5, TP. Hồ Chí Minh
+                </p>
+
+                <p class="mb-2">
+                    <i class="fa fa-envelope text-primary mr-3"></i>
+                    dantutp@gmail.com
+                </p>
+
+                <p class="mb-2">
+                    <i class="fa fa-phone-alt text-primary mr-3"></i>
+                    0396554056
+                </p>
+
+                <p class="mb-0">
+                    <i class="fa fa-clock text-primary mr-3"></i>
+                    Giờ làm việc: 8:00 - 21:00 (Thứ 2 - Chủ Nhật)
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Contact End -->

@@ -1,0 +1,156 @@
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-8 table-responsive mb-5">
+            <table class="table table-light table-borderless table-hover text-center mb-0" id="cart-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Tổng</th>
+                    <th>Xóa</th>
+                </tr>
+                </thead>
+
+                <tbody class="align-middle" id="cart-body">
+                {{#if cart.length}}
+                    {{#each cart}}
+                        <tr class="product-row">
+                            <td class="align-middle">
+                                {{#if image}}<img src="{{image}}" style="width: 50px;">{{/if}} {{name}}
+                            </td>
+                            <td class="align-middle price" data-price="{{price}}">{{formatCurrency price}}</td>
+
+                            <td class="align-middle">
+                                <div class="input-group quantity mx-auto" style="width: 100px;">
+                                    <button class="btn btn-sm btn-primary btn-minus"><i class="fa fa-minus"></i></button>
+                                    <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center quantity-input" value="{{qty}}">
+                                    <button class="btn btn-sm btn-primary btn-plus"><i class="fa fa-plus"></i></button>
+                                </div>
+                            </td>
+
+                            <td class="align-middle total" data-total="{{multiply price qty}}">{{formatCurrency (multiply price qty)}}</td>
+
+                            <td class="align-middle">
+                                <form method="post" action="/cart/remove" class="remove-cart-form">
+                                    <input type="hidden" name="id" value="{{id}}">
+                                    <button type="submit" class="btn btn-sm btn-danger btn-remove">
+                                        <i class="fa fa-times"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {{/each}}
+                {{else}}
+                    <tr>
+                        <td colspan="5" class="text-center">Giỏ hàng của bạn đang trống.</td>
+                    </tr>
+                {{/if}}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="col-lg-4">
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Tóm tắt đơn hàng</span>
+            </h5>
+
+            <div class="bg-light p-30 mb-5">
+                <div class="border-bottom pb-2">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Tạm tính</h6>
+                        <h6 id="subtotal" data-value="{{subtotal}}">{{formatCurrency subtotal}}</h6>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <h6 class="font-weight-medium">Phí vận chuyển</h6>
+                        <h6 class="font-weight-medium" id="shipping" data-value="{{shipping}}">{{formatCurrency shipping}}</h6>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <div class="d-flex justify-content-between mt-2">
+                        <h5>Tổng cộng</h5>
+                        <h5 id="grand-total" data-value="{{grandTotal}}">{{formatCurrency grandTotal}}</h5>
+                    </div>
+                    <a href="/checkout" class="btn btn-block btn-primary font-weight-bold my-3 py-3">
+                        Tiến hành Thanh toán
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currencyFormatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+    const currencyMultiplier = 1000; // chuyển đổi từ đơn giá mô phỏng sang VND thực tế
+
+    function formatCurrency(value) {
+        return currencyFormatter.format((parseFloat(value) || 0) * currencyMultiplier);
+    }
+
+    // JS vẫn giữ để tính lại tổng tạm trên giao diện phía client
+    function updateCart() {
+        let subtotal = 0;
+
+        document.querySelectorAll(".product-row").forEach(row => {
+            let price = parseFloat(row.querySelector(".price").dataset.price);
+            let qtyInput = row.querySelector(".quantity-input");
+            let qty = parseInt(qtyInput.value);
+
+            if (isNaN(qty) || qty < 1) {
+                qty = 1;
+                qtyInput.value = 1;
+            }
+
+            let total = price * qty;
+            const totalCell = row.querySelector(".total");
+            totalCell.dataset.total = total;
+            totalCell.innerText = formatCurrency(total);
+
+            subtotal += total;
+        });
+
+        const subtotalEl = document.getElementById("subtotal");
+        subtotalEl.dataset.value = subtotal;
+        subtotalEl.innerText = formatCurrency(subtotal);
+
+        const shippingEl = document.getElementById("shipping");
+        const shipping = parseFloat(shippingEl.dataset.value) || 0;
+
+        const grandTotal = subtotal + shipping;
+        const grandEl = document.getElementById("grand-total");
+        grandEl.dataset.value = grandTotal;
+        grandEl.innerText = formatCurrency(grandTotal);
+    }
+
+    document.addEventListener("click", function (e) {
+        let btn;
+
+        // PLUS
+        if ((btn = e.target.closest(".btn-plus"))) {
+            let input = btn.closest(".quantity").querySelector(".quantity-input");
+            input.value = parseInt(input.value) + 1;
+            updateCart();
+        }
+
+        // MINUS
+        if ((btn = e.target.closest(".btn-minus"))) {
+            let input = btn.closest(".quantity").querySelector(".quantity-input");
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+                updateCart();
+            }
+        }
+    });
+
+    // Khi nhập trực tiếp số lượng
+    document.addEventListener("input", function (e) {
+        if (e.target.classList.contains("quantity-input")) {
+            updateCart();
+        }
+    });
+
+    updateCart();
+</script>

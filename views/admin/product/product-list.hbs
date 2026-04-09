@@ -1,0 +1,226 @@
+<!-- Phần tiêu đề -->
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fa fa-tshirt text-primary mr-2"></i>Quản lý sản phẩm</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Bảng điều khiển</a>
+                    </li>
+                    <li class="breadcrumb-item active">Tất cả sản phẩm</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="/admin/product/add" class="btn btn-primary btn-lg">
+            <i class="fa fa-plus-circle mr-2"></i>Thêm sản phẩm mới
+        </a>
+    </div>
+</div>
+
+<!-- Thống kê nhanh -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng số sản phẩm</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.totalProducts}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tshirt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Còn hàng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.inStock}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Sắp hết hàng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.lowStock}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Hết hàng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{stats.outOfStock}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Danh sách sản phẩm -->
+<div class="row">
+    {{#each products}}
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card product-card shadow-sm border-0 h-100">
+            <div class="position-relative">
+                <img src="{{#if this.image}}{{this.image}}{{else}}https://dummyimage.com/400x300/e0e0e0/ffffff&text=No+Image{{/if}}"
+                    class="card-img-top" alt="{{this.name}}" style="height: 200px; object-fit: cover;"
+                    onerror="this.src='https://dummyimage.com/400x300/e0e0e0/ffffff&text=No+Image'">
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge {{#if (eq this.status 'active')}}bg-success{{else}}bg-secondary{{/if}}">
+                        {{this.status}}
+                    </span>
+                </div>
+                <div class="position-absolute top-0 start-0 m-2">
+                    <span class="badge bg-primary">{{this.category}}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title text-dark">{{this.name}}</h5>
+                <p class="card-text text-muted small text-truncate">{{this.description}}</p>
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <div class="text-primary font-weight-bold">{{this.price}}₫</div>
+                        <small class="text-muted">Giá</small>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-success font-weight-bold">{{this.quantity}}</div>
+                        <small class="text-muted">Còn hàng</small>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Code: {{this.code}}</small>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent border-0">
+                <div class="btn-group w-100">
+                    <a href="/admin/product/edit/{{this._id}}" class="btn btn-outline-warning btn-sm">
+                        <i class="fa fa-edit mr-1"></i>Sửa
+                    </a>
+                    <a href="/admin/product/delete/{{this._id}}" class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                        <i class="fa fa-trash mr-1"></i>Xóa
+                    </a>
+                    <a href="/admin/product/edit/{{this._id}}" class="btn btn-outline-info btn-sm">
+                        <i class="fa fa-eye mr-1"></i>Xem
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+    <!-- Thêm sản phẩm mới -->
+    <div class="col-xl-4 col-lg-6 mb-4">
+        <div class="card border-dashed shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center py-5">
+                <i class="fa fa-plus-circle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">Thêm sản phẩm mới</h5>
+                <p class="text-muted mb-3">Tạo mới một sản phẩm trong danh mục</p>
+                <a href="/admin/product/add" class="btn btn-primary">
+                    <i class="fa fa-plus mr-2"></i>Thêm sản phẩm
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bộ lọc & hành động nhanh -->
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 text-dark">Bộ lọc & thao tác nhanh</h6>
+        <div class="btn-group">
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fa fa-download mr-1"></i>Xuất dữ liệu
+            </button>
+            <button class="btn btn-outline-success btn-sm">
+                <i class="fa fa-upload mr-1"></i>Nhập dữ liệu
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <select class="form-select">
+                    <option selected>Tất cả danh mục</option>
+                    <option>Giày chạy bộ</option>
+                    <option>Áo thể thao</option>
+                    <option>Đồ yoga & gym</option>
+                    <option>Phụ kiện tập luyện</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <select class="form-select">
+                    <option selected>Tất cả thương hiệu</option>
+                    <option>Nike</option>
+                    <option>Adidas</option>
+                    <option>Lululemon</option>
+                    <option>Under Armour</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <select class="form-select">
+                    <option selected>Trạng thái kho</option>
+                    <option>Còn hàng</option>
+                    <option>Sắp hết hàng</option>
+                    <option>Hết hàng</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <select class="form-select">
+                    <option selected>Trạng thái sản phẩm</option>
+                    <option>Đang bán</option>
+                    <option>Ngừng bán</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Phân trang -->
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1">
+                <i class="fa fa-chevron-left mr-1"></i>Trước
+            </a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+            <a class="page-link" href="#">
+                Sau<i class="fa fa-chevron-right ml-1"></i>
+            </a>
+        </li>
+    </ul>
+</nav>

@@ -1,0 +1,94 @@
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 p-lg-5">
+                    <h2 class="text-center mb-4">Đăng ký tài khoản</h2>
+
+                    {{#if errors}}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0 pl-3">
+                                {{#each errors}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </div>
+                    {{/if}}
+
+                    <form id="registerForm" data-redirect="{{next}}" data-endpoint="{{endpoint}}" method="post">
+                        <input type="hidden" name="redirect" value="{{next}}">
+                        <div class="form-row">
+                            <div class="form-group col-12">
+                                <label for="fullname">Họ và tên</label>
+                                <input value="{{form.name}}" type="text" name="fullname" id="fullname" class="form-control" placeholder="Nguyễn Văn A" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input value="{{form.email}}" type="email" name="email" id="email" class="form-control" placeholder="example@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Điện thoại (Không bắt buộc)</label>
+                            <input type="tel" name="phone" id="phone" class="form-control" placeholder="09xxxxxxxx">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="inputPassword">Mật khẩu</label>
+                                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="inputConfirmPassword">Nhập lại mật khẩu</label>
+                                <input type="password" name="confirmPassword" id="inputConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required minlength="6">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block py-2">Tạo tài khoản</button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0">
+                        Đã có tài khoản?
+                        <a href="/login" class="font-weight-bold">Đăng nhập</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT XỬ LÝ AJAX REGISTER -->
+<script>
+    $('#registerForm').submit(function (e) {
+        e.preventDefault();
+        const password = $('#inputPassword').val();
+        const confirmPassword = $('#inputConfirmPassword').val();
+        if (password !== confirmPassword) {
+            alert('Lỗi: Mật khẩu và mật khẩu xác nhận không khớp.');
+            return;
+        }
+        const formData = $(this).serialize();
+        const endpoint = $(this).data('endpoint');
+        $.ajax({
+            type: 'POST',
+            url: endpoint,
+            data: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    window.location.href = response.redirect || '/login';
+                } else {
+                    alert('Lỗi Đăng ký: ' + response.message);
+                }
+            },
+            error: function (xhr) {
+                try {
+                    const errorData = JSON.parse(xhr.responseText);
+                    alert('Lỗi Hệ thống: ' + errorData.message);
+                } catch (e) {
+                    alert('Lỗi Hệ thống: Đã xảy ra lỗi không xác định. Vui lòng thử lại.');
+                }
+            }
+        });
+    });
+</script>

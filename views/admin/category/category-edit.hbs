@@ -1,0 +1,47 @@
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fa fa-edit text-warning mr-2"></i>Chỉnh sửa danh mục</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/admin/category" class="text-primary">Categories</a>
+                    </li>
+                    <li class="breadcrumb-item active">Edit Category: {{category.name}}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 text-dark">Thông tin danh mục</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/admin/category/edit/{{category._id}}">
+            <div class="mb-3">
+                <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                <input type="text" name="name" class="form-control" value="{{category.name}}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mô tả</label>
+                <textarea class="form-control" name="description" rows="3">{{category.description}}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-control" name="status">
+                    <option value="active" {{#if (eq category.status 'active' )}}selected{{/if}}>Đang hoạt động</option>
+                    <option value="inactive" {{#if (eq category.status 'inactive' )}}selected{{/if}}>Ẩn</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-warning text-white">
+                <i class="fa fa-save mr-2"></i>Cập nhật
+            </button>
+            <a href="/admin/category" class="btn btn-secondary ml-2">Quay lại</a>
+        </form>
+    </div>
+</div>

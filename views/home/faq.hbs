@@ -1,0 +1,29 @@
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2 class="text-center mb-4">Câu hỏi thường gặp</h2>
+            <div id="faqAccordion">
+                {{#each faqs}}
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="card-header bg-white" id="heading-{{@index}}">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-left w-100" data-toggle="collapse" data-target="#collapse-{{@index}}" aria-expanded="{{#if @first}}true{{else}}false{{/if}}" aria-controls="collapse-{{@index}}">
+                                    {{this.question}}
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse-{{@index}}" class="collapse {{#if @first}}show{{/if}}" aria-labelledby="heading-{{@index}}" data-parent="#faqAccordion">
+                            <div class="card-body">
+                                {{this.answer}}
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+            <p class="text-center mt-4 mb-0">
+                Vẫn còn thắc mắc? <a href="/contact">Liên hệ với chúng tôi</a> để được giải đáp.
+            </p>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,64 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mt-4">Quản lý Liên hệ</h2>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Danh sách tin nhắn khách hàng</h5>
+                </div>
+                <div class="card-body">
+                    {{#if contacts.length}}
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Chủ đề</th>
+                                    <th>Nội dung</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each contacts}}
+                                <tr>
+                                    <td>{{this.createdAtFormatted}}</td>
+                                    <td>{{this.name}}</td>
+                                    <td>{{this.email}}</td>
+                                    <td>{{this.subject}}</td>
+                                    <td>
+                                        <div style="max-height: 100px; overflow-y: auto;">
+                                            {{this.message}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <form action="/admin/contact/delete" method="POST"
+                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin nhắn này?');"
+                                            style="display:inline;">
+                                            <input type="hidden" name="id" value="{{this._id}}">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{else}}
+                    <div class="alert alert-info">
+                        Chưa có tin nhắn liên hệ nào.
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

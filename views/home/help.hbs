@@ -1,0 +1,36 @@
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <h3 class="mb-3">Kênh hỗ trợ</h3>
+            <div class="list-group mb-4">
+                {{#each supportChannels}}
+                    <div class="list-group-item">
+                        <h6 class="mb-1 text-uppercase text-muted">{{this.label}}</h6>
+                        <p class="mb-0 font-weight-bold">{{this.value}}</p>
+                    </div>
+                {{/each}}
+            </div>
+            <div class="p-4 bg-light rounded">
+                <h6 class="text-uppercase text-primary">Khung giờ hỗ trợ</h6>
+                <p class="mb-0">Thứ 2 - CN: 8h00 đến 22h00</p>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <h3 class="mb-3">Các chủ đề phổ biến</h3>
+            {{#each helpTopics}}
+                <div class="mb-4">
+                    <h5 class="text-dark">{{this.title}}</h5>
+                    <p class="text-muted mb-0">{{this.content}}</p>
+                </div>
+            {{/each}}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Không tìm thấy câu trả lời?</h5>
+                    <p class="card-text">Gửi câu hỏi cho đội ngũ hỗ trợ, chúng tôi sẽ phản hồi trong vòng 12 giờ làm việc.</p>
+                    <a href="/contact" class="btn btn-primary">Liên hệ ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

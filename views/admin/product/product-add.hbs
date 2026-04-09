@@ -1,0 +1,135 @@
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fa fa-plus-circle text-primary mr-2"></i>Thêm sản phẩm mới</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/admin/product" class="text-primary">Sản phẩm</a>
+                    </li>
+                    <li class="breadcrumb-item active">Thêm sản phẩm</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 text-dark">Thông tin sản phẩm</h5>
+    </div>
+    <div class="card-body">
+        <form action="/admin/product/add" method="POST" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tên sản phẩm *</label>
+                    <input type="text" class="form-control" name="name" required placeholder="Nhập tên sản phẩm">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Mã sản phẩm *</label>
+                    <input type="text" class="form-control" name="code" required placeholder="VD: SP001">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Giá (VNĐ) *</label>
+                    <input type="number" class="form-control" name="price" required placeholder="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Số lượng tồn</label>
+                    <input type="number" class="form-control" name="quantity" placeholder="0" value="0">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Danh mục</label>
+                    <select class="form-select form-control" name="category">
+                        <option value="">-- Chọn danh mục --</option>
+                        {{#each categories}}
+                        <option value="{{this.name}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Kích cỡ và Số lượng</label>
+                    <table class="table table-bordered" id="size-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Số lượng</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added here -->
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-success" onclick="addSizeRow()">
+                        <i class="fa fa-plus"></i> Thêm Size
+                    </button>
+                    <small class="d-block text-muted mt-2">Tổng số lượng tồn kho sẽ được tính tự động từ bảng
+                        này.</small>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Màu sắc</label>
+                    <input type="text" class="form-control" name="color" placeholder="VD: Đỏ, Xanh, Đen...">
+                    <small class="text-muted">Để trống nếu không có màu sắc</small>
+                </div>
+
+                <div class="col-md-6 mb-3" style="display:none;">
+                    <!-- Hidden fields to store array data before submit, or handled by naming convention like sizes[0][size] -->
+                    <!-- We will use naming convention sizes[index][size] and sizes[index][quantity] -->
+                </div>
+            </div>
+
+            <script>
+                let sizeIndex = 0;
+                function addSizeRow() {
+                    const tableBody = document.querySelector('#size-table tbody');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><input type="text" class="form-control" name="sizes[${sizeIndex}][size]" required placeholder="S, M, L..."></td>
+                        <td><input type="number" class="form-control" name="sizes[${sizeIndex}][quantity]" required min="0" value="0"></td>
+                        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()"><i class="fa fa-trash"></i></button></td>
+                    `;
+                    tableBody.appendChild(row);
+                    sizeIndex++;
+                }
+            </script>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Hình ảnh sản phẩm</label>
+            <input type="file" class="form-control" name="image" accept="image/*">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Trạng thái</label>
+            <select class="form-select form-control" name="status">
+                <option value="active">Đang bán</option>
+                <option value="inactive">Ngừng bán</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mô tả</label>
+        <textarea class="form-control" name="description" rows="3" placeholder="Mô tả chi tiết sản phẩm"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        <i class="fa fa-save mr-2"></i>Lưu sản phẩm
+    </button>
+    <a href="/admin/product" class="btn btn-secondary ml-2">Hủy</a>
+    </form>
+</div>
+</div>

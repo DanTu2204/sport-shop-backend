@@ -1,0 +1,276 @@
+<div class="container-fluid">
+    {{#if banners}}
+    <div class="row px-xl-5 mb-3">
+        <div class="col-12">
+            <div id="shop-carousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {{#each banners}}
+                    <div class="carousel-item {{#if @first}}active{{/if}}" style="height: 300px;">
+                        <img class="w-100 h-100" src="{{this.image}}" onerror="this.src='/img/carousel-1.jpg'"
+                            style="object-fit: cover;">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <h3 class="display-4 text-white font-weight-semi-bold mb-3">{{this.title}}</h3>
+                            {{#if this.link}}
+                            <a href="{{this.link}}" class="btn btn-primary">Shop Now</a>
+                            {{/if}}
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{#if banners.[1]}}
+                <a class="carousel-control-prev" href="#shop-carousel" data-slide="prev">
+                    <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                        <span class="carousel-control-prev-icon mb-n2"></span>
+                    </div>
+                </a>
+                <a class="carousel-control-next" href="#shop-carousel" data-slide="next">
+                    <div class="btn btn-dark" style="width: 45px; height: 45px;">
+                        <span class="carousel-control-next-icon mb-n2"></span>
+                    </div>
+                </a>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+    <div class="row px-xl-5">
+        <!-- ==================== BỘ LỌC BÊN TRÁI ==================== -->
+        <div class="col-lg-3 col-md-4">
+            <!-- Lọc theo Giá -->
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Lọc theo Giá</span>
+            </h5>
+            <div class="bg-light p-4 mb-30">
+                <form method="get" action="/shop" id="filter-form">
+                    <input type="hidden" name="q" value="{{searchQuery}}">
+                    <input type="hidden" name="category" value="{{category}}">
+                    <input type="hidden" name="color" value="{{color}}">
+                    <input type="hidden" name="size" value="{{size}}">
+                    <input type="hidden" name="sort" value="{{sort}}">
+                    <input type="hidden" name="limit" value="{{limit}}">
+
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="price" value="" class="custom-control-input" id="price-all" {{#unless
+                            price}}checked{{/unless}}>
+                        <label class="custom-control-label" for="price-all">Tất cả</label>
+                        <span class="badge border font-weight-normal">1000</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="price" value="under-100" class="custom-control-input" id="price-1"
+                            {{#if (eq price 'under-100' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="price-1">Dưới {{formatCurrency 100}}</label>
+                        <span class="badge border font-weight-normal">150</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="price" value="100-200" class="custom-control-input" id="price-2" {{#if
+                            (eq price '100-200' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="price-2">{{formatCurrency 100}} - {{formatCurrency
+                            200}}</label>
+                        <span class="badge border font-weight-normal">295</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="price" value="200-300" class="custom-control-input" id="price-3" {{#if
+                            (eq price '200-300' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="price-3">{{formatCurrency 200}} - {{formatCurrency
+                            300}}</label>
+                        <span class="badge border font-weight-normal">246</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="price" value="300-400" class="custom-control-input" id="price-4" {{#if
+                            (eq price '300-400' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="price-4">{{formatCurrency 300}} - {{formatCurrency
+                            400}}</label>
+                        <span class="badge border font-weight-normal">145</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
+                        <input type="radio" name="price" value="over-400" class="custom-control-input" id="price-5"
+                            {{#if (eq price 'over-400' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="price-5">Trên {{formatCurrency 400}}</label>
+                        <span class="badge border font-weight-normal">168</span>
+                    </div>
+                </form>
+            </div>
+
+
+
+            <!-- Lọc theo Kích cỡ -->
+            <h5 class="section-title position-relative text-uppercase mb-3">
+                <span class="bg-secondary pr-3">Lọc theo Kích cỡ</span>
+            </h5>
+            <div class="bg-light p-4 mb-30">
+                <form method="get" action="/shop" id="filter-size-form">
+                    <input type="hidden" name="q" value="{{searchQuery}}">
+                    <input type="hidden" name="category" value="{{category}}">
+                    <input type="hidden" name="price" value="{{price}}">
+                    <input type="hidden" name="color" value="{{color}}">
+                    <input type="hidden" name="sort" value="{{sort}}">
+                    <input type="hidden" name="limit" value="{{limit}}">
+
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="size" value="" class="custom-control-input" id="size-all" {{#unless
+                            size}}checked{{/unless}}>
+                        <label class="custom-control-label" for="size-all">Tất cả Kích cỡ</label>
+                        <span class="badge border font-weight-normal">1000</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="size" value="XS" class="custom-control-input" id="size-1" {{#if (eq
+                            size 'XS' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="size-1">XS</label>
+                        <span class="badge border font-weight-normal">150</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="size" value="S" class="custom-control-input" id="size-2" {{#if (eq
+                            size 'S' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="size-2">S</label>
+                        <span class="badge border font-weight-normal">295</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="size" value="M" class="custom-control-input" id="size-3" {{#if (eq
+                            size 'M' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="size-3">M</label>
+                        <span class="badge border font-weight-normal">246</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
+                        <input type="radio" name="size" value="L" class="custom-control-input" id="size-4" {{#if (eq
+                            size 'L' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="size-4">L</label>
+                        <span class="badge border font-weight-normal">145</span>
+                    </div>
+                    <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between">
+                        <input type="radio" name="size" value="XL" class="custom-control-input" id="size-5" {{#if (eq
+                            size 'XL' )}}checked{{/if}}>
+                        <label class="custom-control-label" for="size-5">XL</label>
+                        <span class="badge border font-weight-normal">168</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================== DANH SÁCH SẢN PHẨM ==================== -->
+        <div class="col-lg-9 col-md-8">
+            <div class="row pb-3">
+                <!-- Thanh sắp xếp -->
+                <div class="col-12 pb-1">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <button class="btn btn-sm btn-light" id="view-grid"><i class="fa fa-th-large"></i></button>
+                            <button class="btn btn-sm btn-light ml-2" id="view-list"><i class="fa fa-bars"></i></button>
+                        </div>
+                        <div class="ml-2">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-light dropdown-toggle"
+                                    data-toggle="dropdown">Sắp xếp</button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort=newest&limit={{limit}}">Mới
+                                        nhất</a>
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort=popular&limit={{limit}}">Phổ
+                                        biến</a>
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort=price-low&limit={{limit}}">Giá
+                                        thấp đến cao</a>
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort=price-high&limit={{limit}}">Giá
+                                        cao đến thấp</a>
+                                </div>
+                            </div>
+                            <div class="btn-group ml-2">
+                                <button type="button" class="btn btn-sm btn-light dropdown-toggle"
+                                    data-toggle="dropdown">Hiển thị</button>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort={{sort}}&limit=9">9</a>
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort={{sort}}&limit=18">18</a>
+                                    <a class="dropdown-item"
+                                        href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort={{sort}}&limit=27">27</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{#if products}}
+                {{#each products}}
+                <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                    <div class="product-item bg-light mb-4">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" src="{{image}}" alt="{{name}}">
+                            <div class="product-action">
+                                <form method="post" action="/cart/add" class="d-inline">
+                                    <input type="hidden" name="id" value="{{id}}">
+                                    <input type="hidden" name="name" value="{{name}}">
+                                    <input type="hidden" name="price" value="{{price}}">
+                                    <input type="hidden" name="image" value="{{image}}">
+                                    <button type="submit" class="btn btn-outline-dark btn-square"
+                                        title="Thêm vào giỏ"><i class="fa fa-shopping-cart"></i></button>
+                                </form>
+                                <a class="btn btn-outline-dark btn-square" href="/wishlist?add={{id}}"
+                                    title="Yêu thích"><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" href="/detail?id={{id}}" title="Xem chi tiết"
+                                    style="z-index: 100; position: relative;"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" href="/detail?id={{id}}">{{name}}</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5>{{formatCurrency price}}</h5>
+                                {{#if oldPrice}}<h6 class="text-muted ml-2"><del>{{formatCurrency oldPrice}}</del></h6>
+                                {{/if}}
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small class="fa fa-star text-primary mr-1"></small>
+                                <small>(99)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+                {{else}}
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Không tìm thấy sản phẩm nào.</p>
+                    <a href="/shop" class="btn btn-primary">Xem tất cả sản phẩm</a>
+                </div>
+                {{/if}}
+
+                <!-- Phân trang -->
+                {{#if totalPages}}
+                <div class="col-12">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item {{#if (eq page 1)}}disabled{{/if}}">
+                                <a class="page-link"
+                                    href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort={{sort}}&limit={{limit}}&page={{subtract page 1}}">Trước</a>
+                            </li>
+                            {{#times totalPages}}
+                            <li class="page-item {{#if (eq ../page this)}}active{{/if}}">
+                                <a class="page-link"
+                                    href="/shop?{{#if ../category}}category={{../category}}&{{/if}}{{#if ../price}}price={{../price}}&{{/if}}{{#if ../color}}color={{../color}}&{{/if}}{{#if ../size}}size={{../size}}&{{/if}}sort={{../sort}}&limit={{../limit}}&page={{this}}">{{this}}</a>
+                            </li>
+                            {{/times}}
+                            <li class="page-item {{#if (eq page totalPages)}}disabled{{/if}}">
+                                <a class="page-link"
+                                    href="/shop?{{#if category}}category={{category}}&{{/if}}{{#if price}}price={{price}}&{{/if}}{{#if color}}color={{color}}&{{/if}}{{#if size}}size={{size}}&{{/if}}sort={{sort}}&limit={{limit}}&page={{add page 1}}">Sau</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto submit filter forms
+    document.querySelectorAll('#filter-form input[type="radio"], #filter-color-form input[type="radio"], #filter-size-form input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            this.closest('form').submit();
+        });
+    });
+</script>

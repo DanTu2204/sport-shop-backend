@@ -1,0 +1,57 @@
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark mb-1"><i class="fa fa-users text-primary mr-2"></i>Quản lý khách hàng</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-light px-3 py-2 rounded">
+                    <li class="breadcrumb-item">
+                        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">Khách hàng</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span><i class="fa fa-address-book mr-2"></i>Danh sách khách hàng</span>
+        <button class="btn btn-light btn-sm text-primary">
+            <i class="fa fa-download mr-1"></i>Xuất dữ liệu
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="thead-light">
+                    <tr class="text-center">
+                        <th>ID</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Tổng đơn</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each customers}}
+                    <tr class="text-center">
+                        <td>{{@index}}</td>
+                        <!-- Helper to show index 0, 1, 2... might want helper for 1-based index or just use ID -->
+                        <td>{{this.name}}</td>
+                        <td>{{this.email}}</td>
+                        <td>N/A</td> <!-- User model does not store phone number -->
+                        <td>{{this.orderCount}}</td>
+                        <td><span class="badge badge-success">Hoạt động</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary">Xem</button>
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

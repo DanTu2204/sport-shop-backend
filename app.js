@@ -14,6 +14,33 @@ const User = require('./models/User');
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport';
 mongoose.connect(mongoURI).then(async () => {
   console.log('MongoDB Connected to ' + (process.env.MONGODB_URI ? 'Remote Database' : 'Local Database'));
+
+  // Tự động tạo tài khoản admin mặc định nếu chưa có
+  const adminAccounts = [
+    { name: 'Admin 1', email: 'admin1@admin.com', password: 'admin123', role: 'admin' },
+    { name: 'Admin 2', email: 'admin2@admin.com', password: 'admin123', role: 'admin' },
+    { name: 'Super Admin', email: 'superadmin@admin.com', password: 'admin123', role: 'admin' },
+    { name: 'Super hanh', email: 'anhtu@admin.com', password: 'admin123', role: 'admin' }
+  ];
+
+  for (const adminData of adminAccounts) {
+    try {
+      const existingAdmin = await User.findOne({ email: adminData.email });
+      if (!existingAdmin) {
+        const hashedPassword = await bcryptjs.hash(adminData.password, 10);
+        const newAdmin = new User({
+          name: adminData.name,
+          email: adminData.email,
+          password: hashedPassword,
+          role: 'admin'
+        });
+        await newAdmin.save();
+        console.log(`✓ Created admin account: ${adminData.email} (Password: ${adminData.password})`);
+      }
+    } catch (err) {
+      console.error(`Error creating admin ${adminData.email}:`, err);
+    }
+  }
 }).catch(err => {
   console.error("Error connecting to mongodb:", err);
 });
@@ -128,11 +155,7 @@ app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 
 app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Sport Shop API is running properly!',
-    documentation: 'Access API routes via /api'
-  });
+  res.redirect('/admin/login');
 });
 
 // ================= ERROR HANDLER ==================

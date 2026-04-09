@@ -1,0 +1,200 @@
+<!-- Breadcrumbs-->
+<ol class="breadcrumb bg-light px-3 py-2 rounded">
+    <li class="breadcrumb-item">
+        <a href="/admin" class="text-primary"><i class="fa fa-home mr-1"></i>Dashboard</a>
+    </li>
+    <li class="breadcrumb-item active">Thống kê Doanh thu & Sản phẩm</li>
+</ol>
+
+<!-- Lọc theo thời gian -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body py-3">
+        <form method="GET" action="/admin/statistics" class="row align-items-center">
+            <div class="col-auto">
+                <label for="period" class="col-form-label fw-bold">Chọn thời gian:</label>
+            </div>
+            <div class="col-auto">
+                <select name="period" id="period" class="form-select">
+                    <option value="all" {{#if (eq period 'all')}}selected{{/if}}>Tất cả thời gian</option>
+                    <option value="today" {{#if (eq period 'today')}}selected{{/if}}>Hôm nay</option>
+                    <option value="week" {{#if (eq period 'week')}}selected{{/if}}>Tuần này</option>
+                    <option value="month" {{#if (eq period 'month')}}selected{{/if}}>Tháng này</option>
+                    <option value="year" {{#if (eq period 'year')}}selected{{/if}}>Năm nay</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Doanh thu Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Tổng Doanh Thu (Đã hoàn thành)
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{formatCurrency totalRevenue}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-3x text-gray-300" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Đơn hàng Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Tổng Đơn Hàng Hoàn Thành
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{totalOrders}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-bag fa-3x text-gray-300" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sản phẩm bán ra Card -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Số Lượng Sản Phẩm Bán Ra
+                        </div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{totalItemsSold}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-box-open fa-3x text-gray-300" style="opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Biểu đồ -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-chart-bar mr-2"></i> Biểu Đồ Top 10 Sản Phẩm Bán Chạy Nhất</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area" style="position: relative; height:400px; width:100%">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng sản phẩm -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-secondary text-white">
+                <h6 class="m-0 font-weight-bold"><i class="fas fa-list mr-2"></i> Danh Sách Bán Chạy</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {{#each topProducts}}
+                    <div class="list-group-item d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center" style="max-width: 60%;">
+                            <img src="{{this.image}}" alt="{{this.name}}" class="rounded" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;">
+                            <div>
+                                <h6 class="mb-0 text-truncate" style="max-width: 150px;" title="{{this.name}}">{{this.name}}</h6>
+                                <small class="text-muted text-success fw-bold">{{formatCurrency this.revenue}}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary rounded-pill p-2" style="font-size: 1rem;">{{this.quantitySold}} đã bán</span>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="p-4 text-center text-muted">
+                        Không có dữ liệu
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Truyền dữ liệu cho biểu đồ -->
+<script>
+    var chartLabels = [
+        {{#each topProducts}}
+        "{{this.name}}",
+        {{/each}}
+    ];
+    
+    var chartData = [
+        {{#each topProducts}}
+        {{this.quantitySold}},
+        {{/each}}
+    ];
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    if(chartLabels.length > 0) {
+        var ctx = document.getElementById("topProductsChart");
+        var myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels.map(label => label.length > 20 ? label.substring(0, 20) + '...' : label),
+                datasets: [{
+                    label: "Số lượng bán",
+                    backgroundColor: "#ffc107", /* Yellow theme of the admin */
+                    hoverBackgroundColor: "#28a745",
+                    borderColor: "#ffc107",
+                    data: chartData,
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                indexAxis: 'y', /* Biểu đồ ngang cho dễ nhìn tên sản phẩm */
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return chartLabels[context[0].dataIndex]; // Show full name on hover
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById("topProductsChart").outerHTML = "<div class='text-center text-muted p-5 mt-5'>Không có đủ dữ liệu để vẽ biểu đồ</div>";
+    }
+});
+</script>
