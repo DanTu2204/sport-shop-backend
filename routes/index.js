@@ -619,6 +619,9 @@ router.post('/cart/add', async function (req, res) {
         });
     }
 
+    if (req.xhr || req.headers.accept?.includes('json') || req.path.startsWith('/api')) {
+        return res.json({ success: true, message: 'Đã thêm sản phẩm vào giỏ hàng!' });
+    }
     res.redirect('/cart');
 });
 
