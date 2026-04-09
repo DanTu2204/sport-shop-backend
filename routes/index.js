@@ -695,7 +695,7 @@ router.post('/checkout', async function (req, res) {
         console.error('Error saving order:', err);
         const fs = require('fs');
         const logData = `Date: ${new Date().toISOString()}\nError: ${err.message}\nValidation: ${JSON.stringify(err.errors || {}, null, 2)}\nBody: ${JSON.stringify(req.body, null, 2)}\n\n`;
-        fs.appendFileSync('d:\\Thực tập chuyên ngành\\web\\checkout_error.log', logData);
+        fs.appendFileSync(path.join(__dirname, '../checkout_error.log'), logData);
 
         res.render('home/checkout', {
             title: 'Thanh toán',

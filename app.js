@@ -46,6 +46,7 @@ mongoose.connect(mongoURI).then(async () => {
 });
 
 var app = express();
+const { translations, SUPPORTED_LANGS, getTranslation } = require('./utils/i18n');
 
 // ================= MIDDLEWARE ==================
 // CORS configuration to allow cross-origin requests from Frontend (Netlify)
@@ -86,16 +87,32 @@ app.engine('hbs', engine({
   helpers: {
     multiply: function (a, b) { return a * b; },
     eq: function (a, b) { return a === b; },
+    or: function (a, b) { return a || b; },
+    gt: function (a, b) { return a > b; },
+    gte: function (a, b) { return a >= b; },
+    lt: function (a, b) { return a < b; },
+    lte: function (a, b) { return a <= b; },
+    ne: function (a, b) { return a !== b; },
+    if_eq: function (a, b, opts) {
+      if (a == b) {
+        return opts.fn(this);
+      } else {
+        return opts.inverse(this);
+      }
+    },
+    contains: function (array, value) {
+      if (!Array.isArray(array)) return false;
+      return array.includes(value);
+    },
     formatCurrency: function (value) {
-      return (Number(value) * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+      var number = parseFloat(value);
+      if (isNaN(number)) {
+        number = 0;
+      }
+      return (number * 1000).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     },
-    if_eq: function(a, b, opts) {
-        if (a == b) {
-            return opts.fn(this);
-        } else {
-            return opts.inverse(this);
-        }
-    },
+    add: function (a, b) { return parseInt(a) + parseInt(b); },
+    subtract: function (a, b) { return Math.max(1, parseInt(a) - parseInt(b)); },
     times: function (n, block) {
       var accum = '';
       for (var i = 0; i < n; ++i)
@@ -168,11 +185,82 @@ app.use(async function (req, res, next) {
   next();
 });
 
-// Middleware to sync session data into locals
+// Middleware để truyền dữ liệu dùng chung vào view (Đồng bộ đầy đủ từ bản gốc)
 app.use(function (req, res, next) {
-  res.locals.user = req.session.user || null;
-  res.locals.cart = req.session.cart || [];
-  res.locals.wishlist = req.session.wishlist || [];
+  // Lấy cart từ session hoặc query parameters (fallback)
+  try {
+    if (req.session.cart) {
+      res.locals.cart = req.session.cart;
+    } else if (req.query.cart) {
+      res.locals.cart = JSON.parse(decodeURIComponent(req.query.cart));
+      req.session.cart = res.locals.cart;
+    } else if (req.body.cart) {
+      res.locals.cart = typeof req.body.cart === 'string' ? JSON.parse(req.body.cart) : req.body.cart;
+      req.session.cart = res.locals.cart;
+    } else {
+      res.locals.cart = [];
+    }
+  } catch (e) {
+    res.locals.cart = [];
+  }
+
+  // Lấy wishlist từ session hoặc query parameters (fallback)
+  try {
+    if (req.session.wishlist) {
+      res.locals.wishlist = req.session.wishlist;
+    } else if (req.query.wishlist) {
+      res.locals.wishlist = JSON.parse(decodeURIComponent(req.query.wishlist));
+      req.session.wishlist = res.locals.wishlist;
+    } else if (req.body.wishlist) {
+      res.locals.wishlist = typeof req.body.wishlist === 'string' ? JSON.parse(req.body.wishlist) : req.body.wishlist;
+      req.session.wishlist = res.locals.wishlist;
+    } else {
+      res.locals.wishlist = [];
+    }
+  } catch (e) {
+    res.locals.wishlist = [];
+  }
+  res.locals.wishlistCount = res.locals.wishlist.length;
+
+  // Lấy user từ session (ưu tiên) hoặc query parameters (fallback)
+  if (req.session.user) {
+    res.locals.user = req.session.user;
+  } else {
+    try {
+      if (req.query.user) {
+        res.locals.user = JSON.parse(decodeURIComponent(req.query.user));
+        req.session.user = res.locals.user;
+      } else if (req.body.user) {
+        res.locals.user = typeof req.body.user === 'string' ? JSON.parse(req.body.user) : req.body.user;
+        req.session.user = res.locals.user;
+      } else {
+        res.locals.user = null;
+      }
+    } catch (e) {
+      res.locals.user = null;
+    }
+  }
+
+  // Lấy contactMessage và flash
+  res.locals.contactMessage = req.query.contactMessage || null;
+  if (req.session.flash) {
+    res.locals.flash = req.session.flash;
+    delete req.session.flash;
+  } else {
+    try {
+      if (req.query.flashType && req.query.flashMessage) {
+        res.locals.flash = {
+          type: req.query.flashType,
+          message: decodeURIComponent(req.query.flashMessage)
+        };
+      } else {
+        res.locals.flash = null;
+      }
+    } catch (e) {
+      res.locals.flash = null;
+    }
+  }
+
   next();
 });
 
@@ -210,6 +298,66 @@ app.get('/users/:id', async (req, res) => {
     }
   } catch (err) {
     res.status(404).json({ success: false, message: 'Invalid User ID' });
+  }
+});
+
+// ================= API ROUTES (ROOT LEVEL FOR POSTMAN PARITY) ==================
+function isApiRequest(req) {
+  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const acceptHeader = (req.headers.accept || '').toLowerCase();
+  const contentType = (req.headers['content-type'] || '').toLowerCase();
+  const xRequestedWith = (req.headers['x-requested-with'] || '').toLowerCase();
+
+  if (xRequestedWith === 'xmlhttprequest') return true;
+  if (acceptHeader.includes('application/json')) return true;
+  if (userAgent.includes('postman')) return true;
+  if (contentType.includes('application/json')) return true;
+  return false;
+}
+
+app.post('/login', async function (req, res, next) {
+  if (!isApiRequest(req)) return next();
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ success: false, message: 'Vui lòng nhập đầy đủ email và mật khẩu.' });
+
+  try {
+    const user = await User.findOne({ email: email });
+    if (!user) return res.status(400).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
+    const matched = await bcryptjs.compare(password, user.password);
+    if (!matched) return res.status(400).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
+
+    const userInfo = { id: user._id.toString(), name: user.name, email: user.email, role: user.role || 'user' };
+    req.session.user = userInfo;
+    const redirectTo = user.role === 'admin' ? '/admin' : '/';
+    return res.status(200).json({ success: true, message: 'Đăng nhập thành công.', user: userInfo, redirect: redirectTo });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Lỗi đăng nhập.' });
+  }
+});
+
+app.post('/register', async function (req, res, next) {
+  if (!isApiRequest(req)) return next();
+  const { name, fullname, email, password, confirmPassword, confirmpassword } = req.body;
+  const userName = name || fullname;
+  const confirmPass = confirmPassword || confirmpassword;
+
+  if (!userName || !email || !password || !confirmPass) {
+    return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ thông tin.' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) return res.status(400).json({ success: false, message: 'Email đã được đăng ký.' });
+
+    const salt = await bcryptjs.genSalt(10);
+    const hash = await bcryptjs.hash(password, salt);
+    const newUser = new User({ name: userName, email: email, password: hash, role: 'user' });
+    const savedUser = await newUser.save();
+
+    const userInfo = { id: savedUser._id.toString(), name: savedUser.name, email: savedUser.email, role: savedUser.role || 'user' };
+    return res.status(200).json({ success: true, message: 'Đăng ký thành công!', user: userInfo, redirect: '/users/login' });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: 'Lỗi đăng ký.' });
   }
 });
 
