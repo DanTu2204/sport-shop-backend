@@ -752,6 +752,18 @@ router.post('/orders/update-status', requireAdmin, async function (req, res) {
         if (!orderId || !status) {
             return res.redirect('/admin/orders?error=missing_params');
         }
+
+        // Nếu chuyển sang trạng thái "cancelled", hoàn trả lượt dùng voucher
+        if (status === 'cancelled') {
+            const order = await Order.findById(orderId);
+            if (order && order.status !== 'cancelled' && order.voucherCode) {
+                await Voucher.findOneAndUpdate(
+                    { code: order.voucherCode, usedCount: { $gt: 0 } },
+                    { $inc: { usedCount: -1 } }
+                );
+            }
+        }
+
         await Order.findByIdAndUpdate(orderId, { status: status });
         res.redirect('/admin/orders?success=updated');
     } catch (err) {
