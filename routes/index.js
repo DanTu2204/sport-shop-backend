@@ -85,10 +85,13 @@ router.get('/', async function (req, res) {
 
         // Fetch active banners for Home Carousel (Check status AND date)
         const now = new Date();
+        const endOfToday = new Date(now);
+        endOfToday.setHours(23, 59, 59, 999);
+
         const banners = await require('../models/Banner').find({
             position: 'home-carousel',
             status: 'active',
-            startDate: { $lte: now },
+            startDate: { $lte: endOfToday },
             endDate: { $gte: now }
         }).sort({ order: 1 }).lean();
 
@@ -1046,12 +1049,16 @@ router.get('/shop', async function (req, res) {
             .limit(limit)
             .lean();
 
-        // Fetch Shop Banners
+        // Fetch Shop Banners (Check status AND date with timezone fix)
+        const now = new Date();
+        const endOfToday = new Date(now);
+        endOfToday.setHours(23, 59, 59, 999);
+
         const banners = await require('../models/Banner').find({
             position: 'shop-top',
             status: 'active',
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
+            startDate: { $lte: endOfToday },
+            endDate: { $gte: now }
         }).sort({ order: 1 }).lean();
 
         const totalPages = Math.ceil(totalProducts / limit);
