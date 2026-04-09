@@ -67,8 +67,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true in production
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // none for cross-site
+    // Tự động bật Secure và SameSite=None nếu chạy trên Render/Netlify (phát hiện qua FRONTEND_URL)
+    secure: !!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production', 
+    sameSite: (!!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production') ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
@@ -180,6 +181,18 @@ app.use(function (req, res, next) {
       req.session.save(sendRedirect);
     } else {
       sendRedirect();
+    }
+  };
+
+  const originalJson = res.json;
+  res.json = function (obj) {
+    // Đảm bảo session được lưu trước khi trả về bất kỳ dữ liệu JSON nào (bao gồm Login)
+    if (req.session) {
+      req.session.save(() => {
+        return originalJson.call(this, obj);
+      });
+    } else {
+      return originalJson.call(this, obj);
     }
   };
 
