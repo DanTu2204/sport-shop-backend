@@ -761,7 +761,19 @@ router.post('/orders/delete', requireAdmin, async function (req, res) {
         const { orderId } = req.body;
         if (!orderId) return res.redirect('/admin/orders?error=missing_id');
 
-        await Order.findByIdAndDelete(orderId);
+        // Tìm đơn hàng trước khi xóa để kiểm tra voucher
+        const order = await Order.findById(orderId);
+        if (order) {
+            // Hoàn trả lượt dùng voucher nếu đơn hàng có áp dụng mã giảm giá
+            if (order.voucherCode) {
+                await Voucher.findOneAndUpdate(
+                    { code: order.voucherCode, usedCount: { $gt: 0 } },
+                    { $inc: { usedCount: -1 } }
+                );
+            }
+            await order.deleteOne();
+        }
+
         res.redirect('/admin/orders?success=deleted');
     } catch (err) {
         console.error('Delete order error:', err);

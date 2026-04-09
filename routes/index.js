@@ -342,6 +342,14 @@ router.post('/orders/:id/cancel', async function (req, res) {
         });
         await Promise.all(stockPromises);
 
+        // Hoàn trả lượt dùng voucher nếu đơn hàng có áp dụng mã giảm giá
+        if (order.voucherCode) {
+            await Voucher.findOneAndUpdate(
+                { code: order.voucherCode, usedCount: { $gt: 0 } },
+                { $inc: { usedCount: -1 } }
+            );
+        }
+
         // Update status to cancelled
         order.status = 'cancelled';
         await order.save();
