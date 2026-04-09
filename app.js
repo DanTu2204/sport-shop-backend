@@ -237,9 +237,7 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Middleware to transform res.render to res.json for API requests remains above...
-next();
-});
+
 
 // Middleware để truyền dữ liệu dùng chung vào view (Đồng bộ đầy đủ từ bản gốc)
 app.use(function (req, res, next) {
