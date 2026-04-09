@@ -5,6 +5,7 @@ var logger = require('morgan');
 const session = require('express-session');
 const { engine } = require('express-handlebars');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors'); // Added CORS
 const Category = require('./models/Category'); 
@@ -66,6 +67,10 @@ app.use(session({
   secret: 'your-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: mongoURI,
+    collectionName: 'sessions'
+  }),
   cookie: {
     // Tự động bật Secure và SameSite=None nếu chạy trên Render/Netlify (phát hiện qua FRONTEND_URL)
     secure: !!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production', 
