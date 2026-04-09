@@ -324,18 +324,18 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use('/admin', adminRouter);
-
 // ================= ROUTING COORDINATION ==================
-// Hỗ trợ cả đường dẫn gốc, /api và /api/api để tránh lỗi Not Found khi cộng dồn URL
-app.use(['/api/users', '/users', '/api/api/users'], usersRouter);
-app.use(['/api', '/', '/api/api'], indexRouter);
 
-// Redirect root to admin (Chỉ áp dụng cho người dùng thực truy cập bằng trình duyệt)
+// 1. Ưu tiên cao nhất: Redirect root Backend về Admin (Chỉ dành cho trình duyệt)
 app.get('/', (req, res, next) => {
   if (isApiRequest(req)) return next();
   res.redirect('/admin/login');
 });
+
+// 2. Các Route API & SPA
+app.use('/admin', adminRouter);
+app.use(['/api/users', '/users', '/api/api/users'], usersRouter);
+app.use(['/api', '/', '/api/api'], indexRouter);
 
 // assignment test routes (id, name only)
 app.get('/users', async (req, res) => {
