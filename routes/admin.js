@@ -1066,12 +1066,11 @@ router.post('/banner/add', requireAdmin, upload.single('image'), async function 
     try {
         const { title, position, order, link, openInNewTab, startDate, endDate, status, description } = req.body;
 
-        let imagePath = '';
-        if (req.file) {
-            imagePath = '/uploads/' + req.file.filename;
-        } else {
+        if (!req.file) {
             throw new Error('Vui lòng chọn hình ảnh banner');
         }
+
+        const imagePath = req.file.path || ('/uploads/' + req.file.filename);
 
         // Set endDate to end of day (23:59:59.999)
         const endDataObj = new Date(endDate);

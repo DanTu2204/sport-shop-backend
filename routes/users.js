@@ -51,7 +51,7 @@ router.post('/login', async function (req, res) {
 
   // Debug log
   if (isApi) {
-    console.log('API Request detected - Login:', { email, hasPassword: !!password });
+
   }
 
   // Validation
@@ -166,7 +166,7 @@ router.post('/login', async function (req, res) {
 
     // Debug log
     if (isApi) {
-      console.log('Login successful:', userInfo);
+
     }
 
     // Response cho Postman/AJAX
@@ -232,7 +232,7 @@ router.post('/register', async function (req, res) {
 
   // Debug log để kiểm tra
   if (isApi) {
-    console.log('API Request detected - Register:', { userName, email, hasPassword: !!password });
+
   }
 
   // Validation
@@ -286,10 +286,10 @@ router.post('/register', async function (req, res) {
     }
 
     // Hash password
-    console.log('BCRYPT DEBUG: Start hashing password...');
+
     const salt = await bcryptjs.genSalt(10);
     const hash = await bcryptjs.hash(password, salt);
-    console.log('BCRYPT DEBUG: Hashing complete.');
+
 
     // Tạo user mới
     const newUser = new User({
@@ -301,7 +301,7 @@ router.post('/register', async function (req, res) {
     });
 
     const savedUser = await newUser.save();
-    console.log('DB DEBUG: User saved successfully:', savedUser._id);
+
 
     const userInfo = {
       id: savedUser._id.toString(),

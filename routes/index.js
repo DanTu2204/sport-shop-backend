@@ -715,12 +715,11 @@ router.get('/checkout', async function (req, res) {
 });
 
 router.post('/checkout', async function (req, res) {
-    console.log('Received POST /checkout request');
-    console.log('Request Body:', JSON.stringify(req.body, null, 2));
+
 
     const { firstName, lastName, email, phone, address, city, district, paymentMethod } = req.body;
     const cart = getCart(req);
-    console.log('Cart items:', cart.length);
+
 
     if (cart.length === 0) {
         return res.redirect('/cart');
