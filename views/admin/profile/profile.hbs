@@ -25,7 +25,8 @@
                         id="avatar-preview"
                         data-original="{{#if adminUser.image}}{{adminUser.image}}{{else}}https://www.w3schools.com/howto/img_avatar.png{{/if}}"
                         class="rounded-circle border shadow-sm" alt="Admin Avatar"
-                        style="width: 150px; height: 150px; object-fit: cover;">
+                        style="width: 150px; height: 150px; object-fit: cover;"
+                        onerror="this.onerror=null; this.src='https://www.w3schools.com/howto/img_avatar.png';">
                     
                     <label for="avatarUpload" 
                         class="position-absolute border-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow"

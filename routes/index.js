@@ -11,16 +11,28 @@ const multer = require('multer');
 const path = require('path');
 const bcryptjs = require('bcryptjs');
 
-// Configure Multer Storage for User Avatar
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads/users/'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, 'avatar-' + Date.now() + path.extname(file.originalname));
+// Cloudinary upload (dùng khi đã cài và cấu hình biến môi trường)
+// Fallback về local storage nếu chưa cấu hình Cloudinary
+let upload;
+try {
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+        const { uploadAvatar } = require('../utils/cloudinary');
+        upload = uploadAvatar;
+    } else {
+        throw new Error('Cloudinary not configured');
     }
-});
-const upload = multer({ storage: storage });
+} catch (e) {
+    // Fallback: lưu local
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, path.join(__dirname, '../public/uploads/users/'));
+        },
+        filename: function (req, file, cb) {
+            cb(null, 'avatar-' + Date.now() + path.extname(file.originalname));
+        }
+    });
+    upload = multer({ storage: storage });
+}
 
 // Middleware: Get Category & Count (Example placeholder)
 router.use(async function (req, res, next) {
@@ -147,7 +159,8 @@ router.post('/profile/update', upload.single('image'), async function (req, res)
             updateData.birthday = new Date(birthday);
         }
         if (req.file) {
-            updateData.image = '/uploads/users/' + req.file.filename;
+            // Cloudinary trả về secure_url, local storage trả về filename
+            updateData.image = req.file.path || ('/uploads/users/' + req.file.filename);
         }
 
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });

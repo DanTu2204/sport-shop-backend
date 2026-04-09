@@ -13,17 +13,28 @@ const requireAdmin = require('../middleware/adminAuth');
 const multer = require('multer');
 const path = require('path');
 
-// Configure Multer Storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../public/uploads/'));
-    },
-    filename: function (req, file, cb) {
-        cb(null, 'product-' + Date.now() + path.extname(file.originalname));
+// Cloudinary upload (dùng khi đã cài và cấu hình biến môi trường)
+// Fallback về local storage nếu chưa cấu hình Cloudinary
+let upload;
+try {
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+        const { uploadProduct } = require('../utils/cloudinary');
+        upload = uploadProduct;
+    } else {
+        throw new Error('Cloudinary not configured');
     }
-});
-
-const upload = multer({ storage: storage });
+} catch (e) {
+    // Fallback: lưu local
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, path.join(__dirname, '../public/uploads/'));
+        },
+        filename: function (req, file, cb) {
+            cb(null, 'product-' + Date.now() + path.extname(file.originalname));
+        }
+    });
+    upload = multer({ storage: storage });
+}
 
 // Set layout for ALL admin routes (trừ login)
 router.all('/*', function (req, res, next) {
@@ -79,7 +90,7 @@ router.post('/banner/edit/:id', requireAdmin, upload.single('image'), async func
         };
 
         if (req.file) {
-            updateData.image = '/uploads/' + req.file.filename;
+            updateData.image = req.file.path || ('/uploads/' + req.file.filename);
         }
 
         if (endDate) {
@@ -679,7 +690,7 @@ router.post('/product/edit/:id', requireAdmin, upload.single('image'), async fun
         };
 
         if (req.file) {
-            updateData.image = '/uploads/' + req.file.filename;
+            updateData.image = req.file.path || ('/uploads/' + req.file.filename);
         }
 
         await Product.findByIdAndUpdate(req.params.id, updateData);
@@ -1186,7 +1197,7 @@ router.post('/banner/edit/:id', requireAdmin, upload.single('image'), async func
 
         // Update image only if new one uploaded
         if (req.file) {
-            updateData.image = '/uploads/' + req.file.filename;
+            updateData.image = req.file.path || ('/uploads/' + req.file.filename);
         }
 
         // Set endDate to end of day
@@ -1258,7 +1269,7 @@ router.post('/profile/update', requireAdmin, upload.single('image'), async funct
         }
 
         if (req.file) {
-            updateData.image = '/uploads/' + req.file.filename;
+            updateData.image = req.file.path || ('/uploads/' + req.file.filename);
         }
 
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
