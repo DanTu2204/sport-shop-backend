@@ -474,17 +474,38 @@ router.get('/cart', async function (req, res) {
     let subtotal = 0;
     cart.forEach(item => subtotal += item.price * item.qty);
 
+    let discountAmount = 0;
+    let appliedVoucher = null;
+
+    if (req.session.voucher) {
+        appliedVoucher = req.session.voucher;
+        if (appliedVoucher.type === 'percent') {
+            discountAmount = (subtotal * appliedVoucher.value) / 100;
+        } else {
+            discountAmount = appliedVoucher.value;
+        }
+        if (discountAmount > subtotal) discountAmount = subtotal;
+    }
+
     const shipping = 0;
-    const grandTotal = subtotal + shipping;
+    const grandTotal = subtotal + shipping - discountAmount;
 
     res.render('home/cart', {
         title: 'Giỏ hàng của bạn',
         cart,
         subtotal,
         shipping,
+        discountAmount,
+        appliedVoucher,
         grandTotal,
         user: user
     });
+});
+
+// Route to clear voucher
+router.post('/cart/remove-voucher', function (req, res) {
+    req.session.voucher = null;
+    res.json({ success: true, message: 'Đã gỡ mã giảm giá.' });
 });
 
 // ========================= ADD TO CART =======================
