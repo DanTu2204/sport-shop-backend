@@ -91,6 +91,27 @@ app.engine('hbs', engine({
         } else {
             return opts.inverse(this);
         }
+    },
+    times: function (n, block) {
+      var accum = '';
+      for (var i = 0; i < n; ++i)
+        accum += block.fn(i);
+      return accum;
+    },
+    formatDateValue: function (date) {
+      if (!date) return '';
+      var d = new Date(date);
+      var year = d.getFullYear();
+      var month = ('0' + (d.getMonth() + 1)).slice(-2);
+      var day = ('0' + d.getDate()).slice(-2);
+      return `${year}-${month}-${day}`;
+    },
+    json: function (context) {
+      return JSON.stringify(context);
+    },
+    formatDate: function (date) {
+      if (!date) return '';
+      return new Date(date).toLocaleDateString('vi-VN');
     }
   }
 }));
