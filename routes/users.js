@@ -8,43 +8,18 @@ router.all('/*', function (req, res, next) {
   next();
 });
 
-// Helper function: Kiểm tra request từ Postman hay Browser/AJAX
 function isApiRequest(req) {
-  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const url = req.originalUrl || req.url;
+  // BẮT BUỘC coi là API request nếu đường dẫn có /api/
+  if (url.includes('/api/')) return true;
+
   const acceptHeader = (req.headers.accept || '').toLowerCase();
   const contentType = (req.headers['content-type'] || '').toLowerCase();
-  const xRequestedWith = (req.headers['x-requested-with'] || '').toLowerCase();
-
-  // 1. Kiểm tra X-Requested-With header (AJAX requests)
-  if (xRequestedWith === 'xmlhttprequest') {
-    return true;
-  }
-
-  // 2. Kiểm tra User-Agent chứa Postman
-  if (userAgent.includes('postman')) {
-    return true;
-  }
-
-  // 3. Kiểm tra Content-Type là application/json (Postman thường gửi JSON)
-  if (contentType.includes('application/json')) {
-    return true;
-  }
-
-  // 4. Kiểm tra Accept header có application/json
-  if (acceptHeader.includes('application/json')) {
-    return true;
-  }
-
-  // 5. Nếu không có Accept header hoặc Accept không chứa text/html → có thể là API
-  if (!acceptHeader || (!acceptHeader.includes('text/html') && !acceptHeader.includes('*/*'))) {
-    // Nhưng phải có Content-Type để tránh nhầm lẫn
-    if (contentType) {
-      return true;
-    }
-  }
-
-  // Mặc định là Browser request (form submit thông thường)
-  return false;
+  
+  return (
+    acceptHeader.includes('application/json') ||
+    contentType.includes('application/json')
+  );
 }
 
 // ==================== GET CURRENT USER ====================

@@ -8,8 +8,8 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const bcryptjs = require('bcryptjs');
 const cors = require('cors'); // Added CORS
-const Category = require('./models/Category'); 
-const User = require('./models/User'); 
+const Category = require('./models/Category');
+const User = require('./models/User');
 
 // Kết nối MongoDB
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport';
@@ -74,9 +74,9 @@ app.use(session({
   cookie: {
     // Tự động bật Secure và SameSite=None nếu chạy trên Render/Netlify (phát hiện qua FRONTEND_URL hoặc NODE_ENV)
     // Điều này cực kỳ quan trọng để Netlify có thể gửi Cookie sang Render
-    secure: !!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production', 
+    secure: !!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production',
     sameSite: (!!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production') ? 'none' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000 
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -292,11 +292,14 @@ app.use(function (req, res, next) {
     }
   }
 
-  next();
-});
+  app.use('/admin', adminRouter);
+app.use('/users', usersRouter);
 
+// Mandatory API routes for React SPA
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
+
+app.use('/', indexRouter);
 
 app.get('/', (req, res) => {
   res.redirect('/admin/login');
@@ -332,18 +335,19 @@ app.get('/users/:id', async (req, res) => {
   }
 });
 
-// ================= API ROUTES (ROOT LEVEL FOR POSTMAN PARITY) ==================
+// ================= API ROUTES ==================
 function isApiRequest(req) {
-  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const url = req.originalUrl || req.url;
+  // BẮT BUỘC coi là API request nếu đường dẫn có /api/
+  if (url.includes('/api/')) return true;
+
   const acceptHeader = (req.headers.accept || '').toLowerCase();
   const contentType = (req.headers['content-type'] || '').toLowerCase();
-  const xRequestedWith = (req.headers['x-requested-with'] || '').toLowerCase();
-
-  if (xRequestedWith === 'xmlhttprequest') return true;
-  if (acceptHeader.includes('application/json')) return true;
-  if (userAgent.includes('postman')) return true;
-  if (contentType.includes('application/json')) return true;
-  return false;
+  
+  return (
+    acceptHeader.includes('application/json') ||
+    contentType.includes('application/json')
+  );
 }
 
 app.post('/login', async function (req, res, next) {
