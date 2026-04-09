@@ -10,9 +10,9 @@ const Category = require('./models/Category');
 const User = require('./models/User'); 
 
 // Kết nối MongoDB
-mongoose.connect('mongodb://localhost:27017/Sport').then(async () => {
-  console.log('MongoDB Connected!');
-  // (Admin account creation logic omitted for brevity, keep if needed)
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/Sport';
+mongoose.connect(mongoURI).then(async () => {
+  console.log('MongoDB Connected to ' + (process.env.MONGODB_URI ? 'Remote Database' : 'Local Database'));
 }).catch(err => {
   console.error("Error connecting to mongodb:", err);
 });
@@ -20,7 +20,11 @@ mongoose.connect('mongodb://localhost:27017/Sport').then(async () => {
 var app = express();
 
 // ================= MIDDLEWARE ==================
-app.use(cors()); // Enable CORS
+// CORS configuration to allow cross-origin requests from Frontend (Netlify)
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Vite default port is 5173
+  credentials: true // Important if using sessions/cookies
+}));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

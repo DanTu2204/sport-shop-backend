@@ -53,9 +53,19 @@ const PRODUCTS = [
 ];
 
 // ========================= HOME PAGE =========================
-// ========================= HOME PAGE =========================
+// ========== GET CATEGORIES FOR NAVBAR ==========
+router.get('/categories', async function (req, res) {
+    try {
+        const categories = await Category.find({ status: 'active' }).sort({ createdAt: -1 }).lean();
+        res.json({ categories: categories });
+    } catch (err) {
+        res.json({ categories: [] });
+    }
+});
+
 // ========== HOME PAGE ==========
 router.get('/', async function (req, res) {
+
     try {
         // Fetch products from DB
         const featuredProducts = await Product.find({ status: 'active' }).limit(8).sort({ stars: -1 }).lean();
