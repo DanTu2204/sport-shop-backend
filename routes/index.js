@@ -205,6 +205,31 @@ router.post('/profile/password', async function (req, res) {
 });
 
 
+// Get user's orders list
+router.get('/orders', async function (req, res) {
+    const user = getUser(req);
+    if (!user) {
+        if (res.render.originalRender) { // Check if we are in Bridge mode
+            return res.redirect('/login');
+        }
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    try {
+        const userId = user.id || user._id;
+        const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+        
+        res.render('home/orders', {
+            title: 'Đơn hàng của tôi',
+            orders: orders,
+            user: user
+        });
+    } catch (err) {
+        console.error('Get orders error:', err);
+        res.redirect('/');
+    }
+});
+
 router.get('/orders/:id', async function (req, res) {
     const user = getUser(req);
     if (!user) return res.redirect('/login');

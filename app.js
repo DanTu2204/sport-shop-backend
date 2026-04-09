@@ -62,15 +62,15 @@ app.use(express.urlencoded({ extended: false }));
 // Helper function: Nhận diện API request (Dùng cho cả bridge và routes)
 function isApiRequest(req) {
   const url = req.originalUrl || req.url;
+  // Ưu tiên cao nhất cho tiền tố /api
   if (url.includes('/api/')) return true;
 
   const acceptHeader = (req.headers.accept || '').toLowerCase();
-  const contentType = (req.headers['content-type'] || '').toLowerCase();
   
-  return (
-    acceptHeader.includes('application/json') ||
-    contentType.includes('application/json')
-  );
+  // Nếu trình duyệt yêu cầu HTML (thông qua thanh địa chỉ), không coi là API
+  if (acceptHeader.includes('text/html')) return false;
+
+  return acceptHeader.includes('application/json');
 }
 
 // Trust proxy for secure cookies on Render
@@ -331,7 +331,7 @@ app.use('/admin', adminRouter);
 app.use(['/api/users', '/users', '/api/api/users'], usersRouter);
 app.use(['/api', '/', '/api/api'], indexRouter);
 
-// Redirect root to admin (optional, for convenience)
+// Redirect root to admin (Chỉ áp dụng cho người dùng thực truy cập bằng trình duyệt)
 app.get('/', (req, res, next) => {
   if (isApiRequest(req)) return next();
   res.redirect('/admin/login');
