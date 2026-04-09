@@ -500,18 +500,8 @@ router.get('/cart', async function (req, res) {
     let discountAmount = 0;
     let appliedVoucher = null;
 
-    if (req.session.voucher) {
-        appliedVoucher = req.session.voucher;
-        if (appliedVoucher.type === 'percent') {
-            discountAmount = (subtotal * appliedVoucher.value) / 100;
-        } else {
-            discountAmount = appliedVoucher.value;
-        }
-        if (discountAmount > subtotal) discountAmount = subtotal;
-    }
-
     const shipping = 0;
-    const grandTotal = subtotal + shipping - discountAmount;
+    const grandTotal = subtotal + shipping;
 
     res.render('home/cart', {
         title: 'Giỏ hàng của bạn',
@@ -553,19 +543,8 @@ router.post('/cart/update', async function (req, res) {
     // Tính toán lại các con số
     const subtotal = cart.reduce((total, item) => total + (item.price * item.qty), 0);
     const shipping = 0; // Free shipping mặc định
-    let discountAmount = 0;
-    
-    if (req.session.voucher) {
-        const v = req.session.voucher;
-        if (v.type === 'percent') {
-            discountAmount = (subtotal * v.value) / 100;
-        } else {
-            discountAmount = v.value;
-        }
-        if (discountAmount > subtotal) discountAmount = subtotal;
-    }
-
-    const grandTotal = subtotal + shipping - discountAmount;
+    const discountAmount = 0; // Luôn là 0 tại Giỏ hàng
+    const grandTotal = subtotal + shipping;
 
     res.json({
         success: true,
@@ -709,6 +688,10 @@ router.post('/cart/remove', function (req, res) {
                 user.save().catch(err => console.error('Error saving cart to DB:', err));
             }
         });
+    }
+
+    if (req.xhr || req.headers.accept?.includes('json') || req.path.startsWith('/api')) {
+        return res.json({ success: true, message: 'Đã xóa sản phẩm khỏi giỏ hàng.' });
     }
 
     res.redirect('/cart');
@@ -1106,6 +1089,9 @@ router.get('/wishlist', async function (req, res) {
         // Lưu wishlist vào session
         req.session.wishlist = wishlistIds;
 
+        if (req.xhr || req.headers.accept?.includes('json') || req.path.startsWith('/api')) {
+            return res.json({ success: true, message: 'Đã xóa khỏi danh sách yêu thích.' });
+        }
         return res.redirect('/wishlist');
     }
 
@@ -1131,6 +1117,54 @@ router.get('/wishlist', async function (req, res) {
         wishlist: products,
         user: user
     });
+});
+
+// NEW POST API for Wishlist Add
+router.post('/wishlist/add', async function (req, res) {
+    const { productId } = req.body;
+    if (!productId) return res.json({ success: false, message: 'Thiếu Product ID' });
+
+    let wishlistIds = getWishlist(req);
+    if (!wishlistIds.includes(productId)) {
+        wishlistIds.push(productId);
+    }
+    req.session.wishlist = wishlistIds;
+
+    // Sync with User DB if logged in
+    if (req.session.user && req.session.user.id) {
+        try {
+            await User.findByIdAndUpdate(req.session.user.id, { wishlist: wishlistIds });
+        } catch (err) {
+            console.error('DB Wishlist update error:', err);
+        }
+    }
+
+    res.json({ 
+        success: true, 
+        message: 'Đã thêm vào danh sách yêu thích!',
+        wishlistCount: wishlistIds.length 
+    });
+});
+
+// NEW POST API for Wishlist Remove
+router.post('/wishlist/remove', async function (req, res) {
+    const { id } = req.body;
+    if (!id) return res.json({ success: false, message: 'Thiếu ID' });
+
+    let wishlistIds = getWishlist(req);
+    wishlistIds = wishlistIds.filter(itemId => itemId !== id);
+    req.session.wishlist = wishlistIds;
+
+    // Sync with User DB if logged in
+    if (req.session.user && req.session.user.id) {
+        try {
+            await User.findByIdAndUpdate(req.session.user.id, { wishlist: wishlistIds });
+        } catch (err) {
+            console.error('DB Wishlist update error:', err);
+        }
+    }
+
+    res.json({ success: true, message: 'Đã xóa khỏi danh sách yêu thích.' });
 });
 
 // ========================= SHOP ==============================
