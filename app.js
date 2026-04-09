@@ -72,10 +72,10 @@ app.use(session({
     collectionName: 'sessions'
   }),
   cookie: {
-    // Tự động bật Secure và SameSite=None nếu chạy trên môi trường Production thực tế
-    // Ở môi trường Local (HTTP), trình duyệt sẽ từ chối 'secure: true' nên ta cần kiểm tra kỹ.
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    // Tự động bật Secure và SameSite=None nếu chạy trên Render/Netlify (phát hiện qua FRONTEND_URL hoặc NODE_ENV)
+    // Điều này cực kỳ quan trọng để Netlify có thể gửi Cookie sang Render
+    secure: !!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production', 
+    sameSite: (!!process.env.FRONTEND_URL || process.env.NODE_ENV === 'production') ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
