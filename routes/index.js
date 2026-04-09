@@ -1221,8 +1221,8 @@ router.get('/shop', async function (req, res) {
             case 'newest': default: sortOption = { createdAt: -1 }; break;
         }
 
-        // SONG SONG HÓA CÁC TRUY VẤN TRANG SHOP
-        const [totalProducts, products, banners] = await Promise.all([
+        // SONG SONG HÓA CÁC TRUY VẤN TRANG SHOP (bao gồm categories cho sidebar)
+        const [totalProducts, products, banners, categories] = await Promise.all([
             Product.countDocuments(query),
             Product.find(query)
                 .sort(sortOption)
@@ -1234,7 +1234,8 @@ router.get('/shop', async function (req, res) {
                 status: 'active',
                 startDate: { $lte: (new Date()).setHours(23, 59, 59, 999) },
                 endDate: { $gte: new Date() }
-            }).sort({ order: 1 }).lean()
+            }).sort({ order: 1 }).lean(),
+            Category.find({ status: 'active' }).sort({ createdAt: -1 }).lean()
         ]);
 
         const totalPages = Math.ceil(totalProducts / limit);
@@ -1245,7 +1246,8 @@ router.get('/shop', async function (req, res) {
         res.render('home/shop', {
             title: 'Shop Page',
             products: mapProducts(products),
-            banners, 
+            categories,
+            banners,
             category,
             price,
             color,

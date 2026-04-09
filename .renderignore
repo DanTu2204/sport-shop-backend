@@ -1,0 +1,6 @@
+node_modules
+*.log
+.git
+.env.local
+detail_debug.log
+checkout_error.log
