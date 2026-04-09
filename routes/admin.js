@@ -748,6 +748,10 @@ router.get('/orders', requireAdmin, async function (req, res) {
 // Update Order Status
 router.post('/orders/update-status', requireAdmin, async function (req, res) {
     try {
+        const { orderId, status } = req.body;
+        if (!orderId || !status) {
+            return res.redirect('/admin/orders?error=missing_params');
+        }
         await Order.findByIdAndUpdate(orderId, { status: status });
         res.redirect('/admin/orders?success=updated');
     } catch (err) {
