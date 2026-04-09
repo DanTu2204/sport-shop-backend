@@ -263,12 +263,52 @@ router.post('/orders/:id/confirm', async function (req, res) {
     try {
         await Order.findOneAndUpdate(
             { _id: req.params.id, user: user.id || user._id },
-            { status: 'completed' }
+            { status: 'confirmed' }
         );
         res.redirect('/orders/' + req.params.id);
     } catch (err) {
         console.error('Confirm order error:', err);
         res.redirect('/orders');
+    }
+});
+
+// User Cancel Order & Return Stock
+router.post('/api/orders/:id/cancel', async function (req, res) {
+    const user = getUser(req);
+    if (!user) return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
+
+    try {
+        const orderId = req.params.id;
+        const userId = user.id || user._id;
+
+        // Find order and check ownership
+        const order = await Order.findOne({ _id: orderId, user: userId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
+        }
+
+        // Check if status is cancellation-eligible
+        if (!['pending', 'confirmed'].includes(order.status)) {
+            return res.status(400).json({ success: false, message: 'Đơn hàng đang giao hoặc đã hoàn thành, không thể hủy.' });
+        }
+
+        // Return stock
+        const stockPromises = order.items.map(async (item) => {
+            return Product.findByIdAndUpdate(item.productId, {
+                $inc: { quantity: item.quantity }
+            });
+        });
+        await Promise.all(stockPromises);
+
+        // Update status to cancelled
+        order.status = 'cancelled';
+        await order.save();
+
+        res.json({ success: true, message: 'Đã hủy đơn hàng và hoàn trả kho thành công.' });
+    } catch (err) {
+        console.error('Cancel order error:', err);
+        res.status(500).json({ success: false, message: 'Lỗi hệ thống.' });
     }
 });
 

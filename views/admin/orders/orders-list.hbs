@@ -64,10 +64,16 @@
                                                 <option value="cancelled">Hủy</option>
                                             </select>
                                         </form>
-                                        <button type="button" class="btn btn-sm btn-info text-white w-100" data-bs-toggle="modal"
+                                        <button type="button" class="btn btn-sm btn-info text-white w-100 mb-1" data-bs-toggle="modal"
                                             data-bs-target="#orderDetail{{this._id}}" style="font-size: 12px;">
                                             Xem chi tiết
                                         </button>
+                                        <form action="/admin/orders/delete" method="POST" class="w-100" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này vĩnh viễn không? Thao tác này không thể hoàn tác.')">
+                                            <input type="hidden" name="orderId" value="{{this._id}}">
+                                            <button type="submit" class="btn btn-sm btn-danger text-white w-100" style="font-size: 12px;">
+                                                Xóa đơn
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

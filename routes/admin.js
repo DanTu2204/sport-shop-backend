@@ -721,13 +721,25 @@ router.get('/orders', requireAdmin, async function (req, res) {
 
 // Update Order Status
 router.post('/orders/update-status', requireAdmin, async function (req, res) {
-    const { orderId, status } = req.body;
     try {
         await Order.findByIdAndUpdate(orderId, { status: status });
-        res.redirect('/admin/orders');
+        res.redirect('/admin/orders?success=updated');
     } catch (err) {
         console.error('Update status error:', err);
         res.redirect('/admin/orders?error=update_failed');
+    }
+});
+
+router.post('/orders/delete', requireAdmin, async function (req, res) {
+    try {
+        const { orderId } = req.body;
+        if (!orderId) return res.redirect('/admin/orders?error=missing_id');
+
+        await Order.findByIdAndDelete(orderId);
+        res.redirect('/admin/orders?success=deleted');
+    } catch (err) {
+        console.error('Delete order error:', err);
+        res.redirect('/admin/orders?error=delete_failed');
     }
 });
 
