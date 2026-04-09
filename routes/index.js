@@ -562,12 +562,24 @@ router.post('/contact', async function (req, res) {
             type: 'success',
             message: 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.'
         };
+
+        // Nếu là yêu cầu từ API (React SPA), trả về JSON thay vì redirect
+        if (req.xhr || req.path.startsWith('/api')) {
+            return res.json({ 
+                success: true, 
+                message: 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.' 
+            });
+        }
     } catch (err) {
         console.error('Contact save error:', err);
         req.session.flash = {
             type: 'danger',
             message: 'Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau.'
         };
+        
+        if (req.xhr || req.path.startsWith('/api')) {
+            return res.status(500).json({ success: false, message: 'Lỗi hệ thống.' });
+        }
     }
 
     res.redirect('/contact');
